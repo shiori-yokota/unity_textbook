@@ -41,13 +41,6 @@ public class Moderator : MonoBehaviour {
 		/* Moderator.pyを実行した結果を取得 */
 		// 迷路のサイズを設定
 		MazeSize = scriptScope.GetVariable<int>("SIZE");
-		// カメラの設定
-		SetCamera(MazeSize);
-		// 光源の設定
-		SetLight(MazeSize);
-		// 迷路の設定
-		SetMaze (MazeSize);
-
 		// ゴール位置を設定
 		GOAL_COL = (scriptScope.GetVariable<int>("GOAL_COL") * 2) + 1;
 		GOAL_ROW = (scriptScope.GetVariable<int>("GOAL_ROW") * 2) + 1;
@@ -56,19 +49,27 @@ public class Moderator : MonoBehaviour {
 		HIT_WALL_PENALTY = scriptScope.GetVariable<double>("HIT_WALL_PENALTY");
 		ONE_STEP_PENALTY = scriptScope.GetVariable<double>("ONE_STEP_PENALTY");
 
+		// カメラの設定
+		SetCamera(MazeSize);
+		// 光源の設定
+		SetLight(MazeSize);
+		// 迷路の設定
+		SetMaze(MazeSize);
 		// ロボットの初期位置を設定する
 		InitRobotPosition(MazeSize);
 
 		/* 環境設定が終わったので，Q-Learningを開始する */
+		UnityEngine.Debug.Log("環境設定終わり");
 		GameObject robot = GameObject.Find("RobotPy");
-        gameObject.SendMessage("QLearning_start");
-
+        robot.SendMessage("QLearning_start");
     }
 
 	void Update()
 	{
 		if (Input.GetKeyDown (KeyCode.Space)) {
 			InitRobotPosition(MazeSize);
+			GameObject robot = GameObject.Find("RobotPy");
+			robot.SendMessage("QLearning_start");
 		}
 		if (Input.GetKeyDown (KeyCode.R)) { // 報酬を計算
 			double reward = GetReward();
@@ -178,6 +179,10 @@ public class Moderator : MonoBehaviour {
 
 		GameObject robot = GameObject.Find ("RobotPy");
 		robot.transform.position = new Vector3 ((col * 2) + 1, 1, -((row * 2) + 1));
+
+		// 初期位置をロボットに伝える
+		int[] state = new int[] { row, col };
+		robot.SendMessage("Position", state);
 	}
 
 	/* Robotがゴール位置にいるかどうかを判定 */

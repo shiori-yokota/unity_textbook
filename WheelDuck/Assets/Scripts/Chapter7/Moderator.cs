@@ -6,6 +6,8 @@ using Microsoft.Scripting.Hosting;
 
 public class Moderator : MonoBehaviour {
 
+	GameObject robot;
+
 	private int MazeSize;
 	private int GOAL_COL;
 	private int GOAL_ROW;
@@ -21,8 +23,10 @@ public class Moderator : MonoBehaviour {
 
 	void Start()
 	{
+		robot = GameObject.Find("RobotPy");
+
 		string script;
-		var filename = Application.dataPath + "/../Python/Chapter7/Moderator.py";
+		string filename = Application.dataPath + "/../Python/Chapter7/Moderator.py";
 
 		using (StreamReader sr = new StreamReader(filename, System.Text.Encoding.UTF8))
 		{
@@ -60,19 +64,14 @@ public class Moderator : MonoBehaviour {
 
 		/* 環境設定が終わったので，Q-Learningを開始する */
 		UnityEngine.Debug.Log("環境設定終わり");
-		GameObject robot = GameObject.Find("RobotPy");
-        robot.SendMessage("QLearning_start");
+        robot.SendMessage("QLearning_start", false);
     }
 
 	void Update()
 	{
 		if (Input.GetKeyDown (KeyCode.Space)) {
 			InitRobotPosition(MazeSize);
-			GameObject robot = GameObject.Find("RobotPy");
-			robot.SendMessage("QLearning_start");
-		}
-		if (Input.GetKeyDown (KeyCode.R)) { // 報酬を計算
-			double reward = GetReward();
+			robot.SendMessage("QLearning_start", false);
 		}
 		if (Input.GetKeyDown (KeyCode.C)) { // ゴールにいるかどうかを判定
 			bool GoalPos = CheckGoalPosition ();
@@ -176,10 +175,13 @@ public class Moderator : MonoBehaviour {
 		int row = Random.Range (0, size);
 		int col = Random.Range (0, size);
 		UnityEngine.Debug.Log ("Init robot Pos : (" + row + ", " + col + ")");
-
-		GameObject robot = GameObject.Find ("RobotPy");
 		robot.transform.position = new Vector3 ((col * 2) + 1, 1, -((row * 2) + 1));
+		if (row == GOAL_ROW && col == GOAL_COL) InitRobotPosition(size);
+		else setPosition(row, col);
+	}
 
+	void setPosition(int row, int col)
+	{
 		// 初期位置をロボットに伝える
 		int[] state = new int[] { row, col };
 		robot.SendMessage("Position", state);
@@ -196,11 +198,14 @@ public class Moderator : MonoBehaviour {
 	}
 
 	/* Robotの行動に対して報酬を答える */
-	double GetReward()
+	void GetReward(bool colli)
 	{
-		if (CheckGoalPosition ())
-			return GOAL_REWARD;
+		double reward_value;
+		if (CheckGoalPosition())
+			reward_value = GOAL_REWARD;
 		else
-			return GOAL_REWARD;
+			if (colli) reward_value = HIT_WALL_PENALTY;
+			else reward_value = ONE_STEP_PENALTY;
+		robot.SendMessage("sendReward", reward_value);
 	}
 }

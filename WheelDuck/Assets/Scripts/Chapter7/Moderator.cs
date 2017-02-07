@@ -63,15 +63,14 @@ public class Moderator : MonoBehaviour {
 		InitRobotPosition(MazeSize);
 
 		/* 環境設定が終わったので，Q-Learningを開始する */
-		UnityEngine.Debug.Log("環境設定終わり");
-        robot.SendMessage("QLearning_start", false);
+        robot.SendMessage("QLearning_start");
     }
 
 	void Update()
 	{
 		if (Input.GetKeyDown (KeyCode.Space)) {
 			InitRobotPosition(MazeSize);
-			robot.SendMessage("QLearning_start", false);
+			robot.SendMessage("QLearning_start");
 		}
 		if (Input.GetKeyDown (KeyCode.C)) { // ゴールにいるかどうかを判定
 			bool GoalPos = CheckGoalPosition ();
@@ -106,10 +105,8 @@ public class Moderator : MonoBehaviour {
 		GameObject floor = GameObject.Find ("Floor");
 		floor.transform.localScale = new Vector3 (size * 2, 0.5f, size * 2);
 		floor.transform.position = new Vector3 (size, 0, -size);
-
 		//外壁の設定
 		SetOuterWall(size);
-
 		// 内壁の設定
 		SetInnerWall();
 	}
@@ -185,6 +182,14 @@ public class Moderator : MonoBehaviour {
 		// 初期位置をロボットに伝える
 		int[] state = new int[] { row, col };
 		robot.SendMessage("Position", state);
+	}
+
+	int[] transPos2rowcol(Vector3 pos)
+	{
+		int row = -(((int)pos.z + 1) / 2);
+		int col = ((int)pos.x - 1) / 2;
+		int[] arr = new int[] { row, col };
+		return arr;
 	}
 
 	/* Robotがゴール位置にいるかどうかを判定 */

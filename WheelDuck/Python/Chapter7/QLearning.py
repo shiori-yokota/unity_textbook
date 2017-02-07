@@ -34,22 +34,17 @@ def eGreedy(Q, state):
 		action = random.randint(0, 3)
 	else: # epsilonの確率 Q値が最大となるようなactionを選択
 		for act in range(4):
-			UnityEngine.Debug.Log('Q['+str(state)+']['+str(act)+'] : ' + str(Q[state][act]))
 			curr_val = Q[state][act]
 			if curr_val > best_val:
-				UnityEngine.Debug.Log('curr > best')
 				best_val = curr_val
 				# action = act
 				tmp_act.append(act)
 			elif curr_val == best_val:
-				UnityEngine.Debug.Log('curr == best')
 				# action = act
 				tmp_act.append(act)
-	UnityEngine.Debug.Log('tmp_act : ' + str(len(tmp_act)))
 	if len(tmp_act) > 0:
 		index = len(tmp_act) - 1
 		tmpNum = random.randint(0, index)
-		UnityEngine.Debug.Log('tmpNum : ' + str(tmpNum))
 		action = tmp_act[tmpNum]
 
 	if action < 0 or action > 3:
@@ -69,6 +64,7 @@ def eGreedy(Q, state):
 def update_qvalue(Q, old_state, new_state, act, reward):
 	best_new_qval = best_qvalue(Q, new_state)
 	qval = Q[old_state][act]
+	UnityEngine.Debug.Log('qval['+str(old_state)+']['+str(act)+'] : ' + str(qval))
 	Q[old_state][act] = float((1.0 - BETA) * qval + BETA * (reward + GAMMA * best_new_qval))
 	UnityEngine.Debug.Log('Q['+str(old_state)+']['+str(act)+'] : ' + str(Q[old_state][act]))
 
@@ -88,10 +84,11 @@ def writeQvalue(Q):
 	output.close()
 
 def readQvalue():
-	input = open(filename, 'r')
-	value = []
 	qvalues = init_qvalues()
-	for line in input:
+	input = open(filename, 'r')
+	lines = input.readlines()
+	value = []
+	for line in lines:
 		itemList = line.split(':')[1]
 		value.append(itemList)
 	input.close()
@@ -99,7 +96,11 @@ def readQvalue():
 	s2 = 4
 	for i in range(SIZE * SIZE):
 		a = value[s1:s2]
-		qvalues.append(a)
+		UnityEngine.Debug.Log('state : '+str(i))
+		for index in range(len(a)):
+			UnityEngine.Debug.Log('a['+str(index)+']: '+str(a[index]))
+			qvalues[i][index] = a[index]
+			UnityEngine.Debug.Log('qvalues['+str(i)+']['+str(index)+'] : ' + str(qvalues[i][index]))
 		s1 += 4
 		s2 += 4
 	return qvalues
@@ -111,10 +112,11 @@ if CONTINUE != True:
 	qvalue = init_qvalues()
 	# ロボットのstateを設定する
 	state = mazeNum(ROW, COL)
-	# 行動を選択する -> 移動
-	ACT = eGreedy(qvalue, state)
 	# Q値の保存
 	writeQvalue(qvalue)
+	# 行動を選択する -> 移動
+	ACT = eGreedy(qvalue, state)
+
 else:
 	# 報酬が返ってくる
 	UnityEngine.Debug.Log('Reward : ' + str(REWARD))
@@ -122,7 +124,8 @@ else:
 	old_state = mazeNum(OLD_ROW, OLD_COL)
 	new_state = mazeNum(NEW_ROW, NEW_COL)
 	update_qvalue(qvalue, old_state, new_state, ACT, REWARD)
-	# 行動を選択する -> 移動
-	ACT = eGreedy(qvalue, new_state)
+	UnityEngine.Debug.Log('************')
 	# Q値の保存
 	writeQvalue(qvalue)
+	# 行動を選択する -> 移動
+	ACT = eGreedy(qvalue, new_state)

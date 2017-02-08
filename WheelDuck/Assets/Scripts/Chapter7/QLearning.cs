@@ -26,6 +26,8 @@ public class QLearning : MonoBehaviour
 	private Vector3 endPosition;
 	float distance;
 
+	string Mode;
+
 	// Python
 	ScriptEngine scriptEngine;
 	ScriptScope scriptScope;
@@ -90,6 +92,11 @@ public class QLearning : MonoBehaviour
 		returnPosition(endPosition);
 	}
 
+	void GameMode(string mode)
+	{
+		Mode = mode;
+	}
+
 	void returnPosition(Vector3 pos)
 	{
 		UnityEngine.Debug.Log("壁にぶつかった:もといた座標に戻る");
@@ -105,8 +112,16 @@ public class QLearning : MonoBehaviour
 		int[] news = position2rowcol(endPosition);
 		new_row = news[0];
 		new_col = news[1];
-		UnityEngine.Debug.Log("行動し終わったので報酬を教えてもらう");
-		moderator.SendMessage("GetReward", news);
+		if (Mode == "learn")
+		{
+			UnityEngine.Debug.Log("行動し終わったので報酬を教えてもらう");
+			moderator.SendMessage("GetReward", news);
+		} else if (Mode == "move")
+		{
+			UnityEngine.Debug.Log("行動し終わったのでゴールかどうかを教えてもらう");
+			moderator.SendMessage("CheckPosition", news);
+		}
+
 		Colli = false;
 	}
 
@@ -212,5 +227,30 @@ public class QLearning : MonoBehaviour
 			Walk(action);
 		}
 
+	}
+
+	// Q値に従って行動する
+	void Moving_start(string status)
+	{
+		string script;
+		string filename = Application.dataPath + "/../Python/Chapter7/RobotController.py";
+		using (StreamReader sr = new StreamReader(filename, System.Text.Encoding.UTF8))
+			script = sr.ReadToEnd();
+
+		scriptEngine = IronPython.Hosting.Python.CreateEngine();
+		scriptScope = scriptEngine.CreateScope();
+		scriptSource = scriptEngine.CreateScriptSourceFromString(script);
+		/* QLearning.pyを実行 */
+		scriptScope.SetVariable("SIZE", MazeSize);
+		scriptScope.SetVariable("ROW", new_row);
+		scriptScope.SetVariable("COL", new_col);
+
+		scriptSource.Execute(scriptScope);
+
+		if (status == "continue") startPosition = endPosition;
+		// 選択した行動
+		action = scriptScope.GetVariable<int>("ACT");
+		// 行動が決まったので移動する
+		Walk(action);
 	}
 }

@@ -18,6 +18,8 @@ public class Moderator : MonoBehaviour {
 
 	bool RobotColli;
 
+	string GameMode;
+
 	// python
 	ScriptEngine scriptEngine;	// スクリプト実行用のScriptEngine
 	ScriptScope scriptScope;	// スクリプトに値を渡すためのScriptScope
@@ -63,15 +65,25 @@ public class Moderator : MonoBehaviour {
 		SetMaze(MazeSize);
 		// ロボットの初期位置を設定する
 		InitRobotPosition(MazeSize);
+	}
 
-		/* 環境設定が終わったので，Q-Learningを開始する */
-        robot.SendMessage("QLearning_start", false);
-    }
-
-	void NextScene()
+	void Update()
 	{
-		//
-		//
+		if (Input.GetKeyDown(KeyCode.L))
+		{
+			GameMode = "learn";
+			robot.SendMessage("GameMode", GameMode);
+			UnityEngine.Debug.Log("Q Learning Start");
+			/* 環境設定が終わったので，Q-Learningを開始する */
+			robot.SendMessage("QLearning_start", false);
+		}
+		if (Input.GetKeyDown(KeyCode.M))
+		{
+			GameMode = "move";
+			robot.SendMessage("GameMode", GameMode);
+			UnityEngine.Debug.Log("Moving Start");
+			robot.SendMessage("Moving_start", "new");
+		}
 	}
 
 	void SetCamera(int size)
@@ -206,6 +218,24 @@ public class Moderator : MonoBehaviour {
 			return false;
 	}
 
+	void CheckPosition(int[] arr)
+	{
+		int row = arr[0];
+		int col = arr[1];
+		UnityEngine.Debug.Log("row : " + row + ", col : " + col);
+		UnityEngine.Debug.Log("goal row : " + GOAL_ROW + ", goal col : " + GOAL_COL);
+		if (col == GOAL_COL && row == GOAL_ROW)
+		{
+			UnityEngine.Debug.Log("Finish");
+			NextEpisode();
+		}
+		else
+		{
+			UnityEngine.Debug.Log("次のStep");
+			robot.SendMessage("Moving_start", "continue");
+		}
+	}
+
 	void RobotCollision(bool colli)
 	{
 		RobotColli = colli;
@@ -226,6 +256,12 @@ public class Moderator : MonoBehaviour {
 	void NextEpisode()
 	{
 		InitRobotPosition(MazeSize);
-		robot.SendMessage("QLearning_start", false);
+		Invoke("q_start", 2.0f);
+	}
+
+	void q_start()
+	{
+		if (GameMode == "learn") robot.SendMessage("QLearning_start", false);
+		else if (GameMode == "move") robot.SendMessage("Moving_start", "new");
 	}
 }

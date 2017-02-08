@@ -34,7 +34,7 @@ def eGreedy(Q, state):
 		action = random.randint(0, 3)
 	else: # epsilonの確率 Q値が最大となるようなactionを選択
 		for act in range(4):
-			curr_val = Q[state][act]
+			curr_val = float(Q[state][act])
 			if curr_val > best_val:
 				best_val = curr_val
 				# action = act
@@ -75,6 +75,7 @@ def best_qvalue(Q, state):
 			best_val = Q[state][i]
 	return best_val;
 
+# Q値を記録する
 def writeQvalue(Q):
 	output = open(filename, 'w')
 	for state in range(SIZE * SIZE):
@@ -83,6 +84,7 @@ def writeQvalue(Q):
 			output.write('\n')
 	output.close()
 
+# 記録したQ値を読み込む
 def readQvalue(Q):
 	input = open(filename, 'r')
 	lines = input.readlines()

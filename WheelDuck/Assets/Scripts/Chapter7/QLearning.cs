@@ -7,6 +7,7 @@ using Microsoft.Scripting.Hosting;
 public class QLearning : MonoBehaviour
 {
 	GameObject robot;
+	GameObject moderator;
 
 	int episode = 0;
 	int step = 0;
@@ -14,6 +15,7 @@ public class QLearning : MonoBehaviour
 	double EPSILON;
 	double GAMMA;
 	double BETA;
+	double GOAL;
 	int MazeSize;
 	int new_row, new_col;
 	int old_row, old_col;
@@ -32,6 +34,7 @@ public class QLearning : MonoBehaviour
 	void Start()
 	{
 		robot = GameObject.Find("RobotPy");
+		moderator = GameObject.Find("GameObject");
 		walk = false;
 		Colli = false;
 
@@ -57,19 +60,20 @@ public class QLearning : MonoBehaviour
 		BETA = scriptScope.GetVariable<double>("BETA");
 		// 迷路のサイズ
 		MazeSize = scriptScope.GetVariable<int>("SIZE");
+		GOAL = scriptScope.GetVariable<double>("GOAL_REWARD");
 	}
 
 	void Update()
 	{
 		if (walk)
 		{
-			distance += Time.deltaTime * 1;
+			distance += Time.deltaTime * 3;
 			robot.transform.position = Vector3.MoveTowards(startPosition, endPosition, distance);
 			if (Vector3.Distance(robot.transform.position, endPosition) < 0.1)
 			{ // 移動完了
+				moderator.SendMessage("RobotCollision", Colli);
 				walk = false;
 				distance = 0.0f;
-				startPosition = endPosition;
 				walkFinish();
 			}
 		}
@@ -79,6 +83,7 @@ public class QLearning : MonoBehaviour
 	{
 		walk = false;
 		Colli = true;
+		moderator.SendMessage("RobotCollision", Colli);
 		distance = 0.0f;
 		// 壁にぶつかったらもといた場所に戻る
 		endPosition = startPosition;
@@ -101,12 +106,11 @@ public class QLearning : MonoBehaviour
 		new_row = news[0];
 		new_col = news[1];
 		UnityEngine.Debug.Log("行動し終わったので報酬を教えてもらう");
-		GameObject moderator = GameObject.Find("GameObject");
-		moderator.SendMessage("GetReward", Colli);
+		moderator.SendMessage("GetReward", news);
 		Colli = false;
 	}
 
-	void QLearning_start()
+	void QLearning_start(bool init)
     {
 		episode += 1;
 		string script;
@@ -119,6 +123,7 @@ public class QLearning : MonoBehaviour
 		scriptSource = scriptEngine.CreateScriptSourceFromString(script);
 		/* QLearning.pyを実行 */
 		scriptScope.SetVariable("CONTINUE", false);
+		scriptScope.SetVariable("INIT", init);
 		scriptScope.SetVariable("EPISODE", episode);
 		scriptScope.SetVariable("SIZE", MazeSize);
 		scriptScope.SetVariable("ROW", new_row);
@@ -194,9 +199,18 @@ public class QLearning : MonoBehaviour
 		scriptScope.SetVariable("REWARD", value);
 		scriptSource.Execute(scriptScope);
 
-		// 選択した行動
-		action = scriptScope.GetVariable<int>("ACT");
-		// 行動が決まったので移動する
-		if (step < 2) Walk(action);
+		if (value == GOAL)
+		{
+			step = 0;
+			moderator.SendMessage("NextEpisode");
+		} else
+		{
+			startPosition = endPosition;
+			// 選択した行動
+			action = scriptScope.GetVariable<int>("ACT");
+			// 行動が決まったので移動する
+			Walk(action);
+		}
+
 	}
 }

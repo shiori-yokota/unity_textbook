@@ -64,9 +64,9 @@ def eGreedy(Q, state):
 def update_qvalue(Q, old_state, new_state, act, reward):
 	best_new_qval = best_qvalue(Q, new_state)
 	qval = Q[old_state][act]
-	UnityEngine.Debug.Log('qval['+str(old_state)+']['+str(act)+'] : ' + str(qval))
-	Q[old_state][act] = float((1.0 - BETA) * qval + BETA * (reward + GAMMA * best_new_qval))
+	Q[old_state][act] = (1.0 - BETA) * float(qval) + BETA * (reward + GAMMA * float(best_new_qval))
 	UnityEngine.Debug.Log('Q['+str(old_state)+']['+str(act)+'] : ' + str(Q[old_state][act]))
+	return Q
 
 def best_qvalue(Q, state):
 	best_val = -1000000.0
@@ -83,12 +83,13 @@ def writeQvalue(Q):
 			output.write('\n')
 	output.close()
 
-def readQvalue():
-	qvalues = init_qvalues()
+def readQvalue(Q):
 	input = open(filename, 'r')
 	lines = input.readlines()
 	value = []
 	for line in lines:
+		line = line.replace('\n','')
+		line = line.replace('\r','')
 		itemList = line.split(':')[1]
 		value.append(itemList)
 	input.close()
@@ -96,34 +97,36 @@ def readQvalue():
 	s2 = 4
 	for i in range(SIZE * SIZE):
 		a = value[s1:s2]
-		UnityEngine.Debug.Log('state : '+str(i))
 		for index in range(len(a)):
-			UnityEngine.Debug.Log('a['+str(index)+']: '+str(a[index]))
-			qvalues[i][index] = a[index]
-			UnityEngine.Debug.Log('qvalues['+str(i)+']['+str(index)+'] : ' + str(qvalues[i][index]))
+			Q[i][index] = a[index]
 		s1 += 4
 		s2 += 4
-	return qvalues
+	return Q
 
 # Q値を初期化する
 if CONTINUE != True:
 	UnityEngine.Debug.Log('************')
 	UnityEngine.Debug.Log('EPISODE : ' + str(EPISODE))
 	qvalue = init_qvalues()
+	if INIT != True:
+		qvalue = readQvalue(qvalue)
 	# ロボットのstateを設定する
 	state = mazeNum(ROW, COL)
 	# Q値の保存
 	writeQvalue(qvalue)
 	# 行動を選択する -> 移動
 	ACT = eGreedy(qvalue, state)
-
 else:
 	# 報酬が返ってくる
 	UnityEngine.Debug.Log('Reward : ' + str(REWARD))
-	qvalue = readQvalue()
+	qvalue = init_qvalues()
+	qvalue = readQvalue(qvalue)
+	#for state in range(SIZE * SIZE):
+	#	for act in range(4):
+	#		UnityEngine.Debug.Log('qvalue['+str(state)+']['+str(act)+'] : ' + str(qvalue[state][act]))
 	old_state = mazeNum(OLD_ROW, OLD_COL)
 	new_state = mazeNum(NEW_ROW, NEW_COL)
-	update_qvalue(qvalue, old_state, new_state, ACT, REWARD)
+	qvalue = update_qvalue(qvalue, old_state, new_state, ACT, REWARD)
 	UnityEngine.Debug.Log('************')
 	# Q値の保存
 	writeQvalue(qvalue)

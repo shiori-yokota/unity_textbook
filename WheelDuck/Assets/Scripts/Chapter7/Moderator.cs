@@ -16,6 +16,8 @@ public class Moderator : MonoBehaviour {
 	private double HIT_WALL_PENALTY;
 	private double ONE_STEP_PENALTY;
 
+	bool RobotColli;
+
 	// python
 	ScriptEngine scriptEngine;	// スクリプト実行用のScriptEngine
 	ScriptScope scriptScope;	// スクリプトに値を渡すためのScriptScope
@@ -46,8 +48,8 @@ public class Moderator : MonoBehaviour {
 		// 迷路のサイズを設定
 		MazeSize = scriptScope.GetVariable<int>("SIZE");
 		// ゴール位置を設定
-		GOAL_COL = (scriptScope.GetVariable<int>("GOAL_COL") * 2) + 1;
-		GOAL_ROW = (scriptScope.GetVariable<int>("GOAL_ROW") * 2) + 1;
+		GOAL_COL = scriptScope.GetVariable<int>("GOAL_COL");
+		GOAL_ROW = scriptScope.GetVariable<int>("GOAL_ROW");
 		// 報酬を設定
 		GOAL_REWARD = scriptScope.GetVariable<double>("GOAL_REWARD");
 		HIT_WALL_PENALTY = scriptScope.GetVariable<double>("HIT_WALL_PENALTY");
@@ -63,23 +65,8 @@ public class Moderator : MonoBehaviour {
 		InitRobotPosition(MazeSize);
 
 		/* 環境設定が終わったので，Q-Learningを開始する */
-        robot.SendMessage("QLearning_start");
+        robot.SendMessage("QLearning_start", false);
     }
-
-	void Update()
-	{
-		if (Input.GetKeyDown (KeyCode.Space)) {
-			InitRobotPosition(MazeSize);
-			robot.SendMessage("QLearning_start");
-		}
-		if (Input.GetKeyDown (KeyCode.C)) { // ゴールにいるかどうかを判定
-			bool GoalPos = CheckGoalPosition ();
-			if (GoalPos) {
-				UnityEngine.Debug.Log ("----- GOAL -----");
-				NextScene ();
-			}
-		}
-	}
 
 	void NextScene()
 	{
@@ -134,31 +121,44 @@ public class Moderator : MonoBehaviour {
 
 	void SetInnerWall()
 	{
-		Vector3[] wall = new Vector3[16];
-		wall [0] = new Vector3 (2, 1, -1);
-		wall [1] = new Vector3 (8, 1, -1);
-		wall [2] = new Vector3 (8, 1, -3);
-		wall [3] = new Vector3 (2, 1, -5);
-		wall [4] = new Vector3 (6, 1, -5);
-		wall [5] = new Vector3 (6, 1, -7);
-		wall [6] = new Vector3 (4, 1, -9);
-		wall [7] = new Vector3 (6, 1, -9);
+		int wall_num = 0;
+		if (MazeSize == 5) wall_num = 16;
+		else if (MazeSize == 3) wall_num = 4;
+		Vector3[] wall = new Vector3[wall_num];
+		if (MazeSize == 5)
+		{
+			wall [0] = new Vector3 (2, 1, -1);
+			wall [1] = new Vector3 (8, 1, -1);
+			wall [2] = new Vector3 (8, 1, -3);
+			wall [3] = new Vector3 (2, 1, -5);
+			wall [4] = new Vector3 (6, 1, -5);
+			wall [5] = new Vector3 (6, 1, -7);
+			wall [6] = new Vector3 (4, 1, -9);
+			wall [7] = new Vector3 (6, 1, -9);
 
-		wall [8] = new Vector3 (3, 1, -2);
-		wall [9] = new Vector3 (5, 1, -2);
-		wall [10] = new Vector3 (3, 1, -4);
-		wall [11] = new Vector3 (5, 1, -4);
-		wall [12] = new Vector3 (3, 1, -6);
-		wall [13] = new Vector3 (7, 1, -6);
-		wall [14] = new Vector3 (1, 1, -8);
-		wall [15] = new Vector3 (9, 1, -8);
+			wall [8] = new Vector3 (3, 1, -2);
+			wall [9] = new Vector3 (5, 1, -2);
+			wall [10] = new Vector3 (3, 1, -4);
+			wall [11] = new Vector3 (5, 1, -4);
+			wall [12] = new Vector3 (3, 1, -6);
+			wall [13] = new Vector3 (7, 1, -6);
+			wall [14] = new Vector3 (1, 1, -8);
+			wall [15] = new Vector3 (9, 1, -8);
+		} else if (MazeSize == 3)
+		{
+			wall[0] = new Vector3(2, 1, -1);
+			wall[1] = new Vector3(4, 1, -3);
+
+			wall[2] = new Vector3(1, 1, -4);
+			wall[3] = new Vector3(5, 1, -2);
+		}
 
 		GameObject[] InnerWallFabs = new GameObject[wall.Length];
 		GameObject prefab = (GameObject)Resources.Load ("Prefabs/InnerWall");
 		prefab.transform.localScale = new Vector3 (0.2f, 2, 2);
 		Quaternion rot = Quaternion.identity;
-		for (int i = 0; i < 16; i++) {
-			if (i < 8) {
+		for (int i = 0; i < wall_num; i++) {
+			if (i < wall_num / 2) {
 				InnerWallFabs[i] = Instantiate (prefab, wall [i], rot) as GameObject;
 			} else {
 				rot.eulerAngles = new Vector3 (0, 90, 0);
@@ -193,24 +193,39 @@ public class Moderator : MonoBehaviour {
 	}
 
 	/* Robotがゴール位置にいるかどうかを判定 */
-	bool CheckGoalPosition()
+	bool CheckGoalPosition(int[] arr)
 	{
-		GameObject robot = GameObject.Find ("RobotPy");
-		if (robot.transform.position.x == GOAL_COL && -(robot.transform.position.z) == GOAL_ROW)
-			return true;
+		int row = arr[0];
+		int col = arr[1];
+		UnityEngine.Debug.Log("row : " + row + ", col : " + col);
+		UnityEngine.Debug.Log("goal row : " + GOAL_ROW + ", goal col : " + GOAL_COL);
+		if (col == GOAL_COL)
+			if (row == GOAL_ROW) return true;
+			else return false;
 		else
 			return false;
 	}
 
+	void RobotCollision(bool colli)
+	{
+		RobotColli = colli;
+	}
+
 	/* Robotの行動に対して報酬を答える */
-	void GetReward(bool colli)
+	void GetReward(int[] arr)
 	{
 		double reward_value;
-		if (CheckGoalPosition())
+		if (CheckGoalPosition(arr))
 			reward_value = GOAL_REWARD;
 		else
-			if (colli) reward_value = HIT_WALL_PENALTY;
+			if (RobotColli) reward_value = HIT_WALL_PENALTY;
 			else reward_value = ONE_STEP_PENALTY;
 		robot.SendMessage("sendReward", reward_value);
+	}
+
+	void NextEpisode()
+	{
+		InitRobotPosition(MazeSize);
+		robot.SendMessage("QLearning_start", false);
 	}
 }

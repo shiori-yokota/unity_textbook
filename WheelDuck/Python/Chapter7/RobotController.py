@@ -6,7 +6,7 @@ sys.path.append(UnityEngine.Application.dataPath + '/../Python/Lib')
 import random
 filename = UnityEngine.Application.dataPath + '/../Python/Chapter7/qvalues.txt'
 
-# ƒƒ{ƒbƒg‚Ìstate‚ğİ’è‚·‚é
+# ãƒ­ãƒœãƒƒãƒˆã®stateã‚’è¨­å®šã™ã‚‹
 def mazeNum(row, col):
 	if row == 0:
 		state = col
@@ -14,7 +14,7 @@ def mazeNum(row, col):
 		state = SIZE * row + col
 	return state
 
-# Q’l‚ğ‰Šú‰»‚·‚é
+# Qå€¤ã‚’åˆæœŸåŒ–ã™ã‚‹
 def init_qvalues():
 	Q = [[ 0.0 for num_actions in range(4)] for state in range(SIZE * SIZE)]
 	#for state in range(SIZE * SIZE):
@@ -22,7 +22,7 @@ def init_qvalues():
 	#			UnityEngine.Debug.Log('Q['+str(state)+']['+str(act)+'] : ' + str(Q[state][act]))
 	return Q
 
-# ŠwK‚µ‚½Q’l‚ğ“Ç‚İ‚Ş
+# è¨˜éŒ²ã—ãŸQå€¤ã‚’èª­ã¿è¾¼ã‚€
 def readQvalue(Q):
 	input = open(filename, 'r')
 	lines = input.readlines()
@@ -43,7 +43,7 @@ def readQvalue(Q):
 		s2 += 4
 	return Q
 
-# ó‘Ôstate‚Ì‚ÌQ’l‚ªÅ‘å‚É‚È‚és“®‚ğ‘I‘ğ‚·‚é
+# 
 def best_value_action(state, Q):
 	best_value = -1000000.0
 	action = -1

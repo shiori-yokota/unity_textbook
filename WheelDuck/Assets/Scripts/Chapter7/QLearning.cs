@@ -248,7 +248,10 @@ public class QLearning : MonoBehaviour
 		scriptSource.Execute(scriptScope);
 
 		if (status == "continue") startPosition = endPosition;
-		// 選択した行動
+		else
+		{
+			step = 0;
+		}// 選択した行動
 		action = scriptScope.GetVariable<int>("ACT");
 		// 行動が決まったので移動する
 		Walk(action);

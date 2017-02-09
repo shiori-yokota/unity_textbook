@@ -6,6 +6,7 @@ sys.path.append(UnityEngine.Application.dataPath + '/../Python/Lib')
 import random
 filename = UnityEngine.Application.dataPath + '/../Python/Chapter7/qvalues.txt'
 
+
 # Q値を初期化する
 def init_qvalues():
 	Q = [[ 0.0 for num_actions in range(4)] for state in range(SIZE * SIZE)]
@@ -28,7 +29,7 @@ def eGreedy(Q, state):
 	best_val = -100000.0
 	curr_val = -100000.0
 	tmp_act = []
-	action = 0
+	action = -1
 	
 	if rndm_val > EPSILON * 100: # (1 - epsilon)の確率 ランダムにactを選択
 		action = random.randint(0, 3)
@@ -37,15 +38,15 @@ def eGreedy(Q, state):
 			curr_val = float(Q[state][act])
 			if curr_val > best_val:
 				best_val = curr_val
-				# action = act
-				tmp_act.append(act)
+				action = act
+				tmp_act.append(action)
 			elif curr_val == best_val:
-				# action = act
-				tmp_act.append(act)
-	if len(tmp_act) > 0:
-		index = len(tmp_act) - 1
-		tmpNum = random.randint(0, index)
-		action = tmp_act[tmpNum]
+				action = act
+				tmp_act.append(action)
+				if len(tmp_act) > 0:
+					index = len(tmp_act) - 1
+					tmpNum = random.randint(0, index)
+					action = tmp_act[tmpNum]
 
 	if action < 0 or action > 3:
 		UnityEngine.Debug.Log('action error')

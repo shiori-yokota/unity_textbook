@@ -51,9 +51,9 @@ public class QLearning : MonoBehaviour
 		scriptScope = scriptEngine.CreateScope();
 		// pythonのソースを指定
 		scriptSource = scriptEngine.CreateScriptSourceFromString(script);
-		// Moderator.pyのソースを実行する
+		// Moderator7.pyのソースを実行する
 		scriptSource.Execute(scriptScope);
-		/* Moderator.pyを実行した結果を取得 */
+		/* Moderator7.pyを実行した結果を取得 */
 		// epsilon-greedy法のパラメータを取得
 		EPSILON = scriptScope.GetVariable<double>("EPSILON");
 		// 割引率を取得

@@ -5,13 +5,18 @@ using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 
 public class Moderator2 : MonoBehaviour {
+	GameObject robot;
 
 	private int MazeSize;
 
 	void Start () {
+		robot = GameObject.Find("RobotPy");
 
 		MazeSize = 5;
 
+		// ロボットの初期位置を設定する
+		InitRobotPosition();
+		
 		SetCamera(MazeSize);
 		SetLight(MazeSize);
 		SetMaze(MazeSize);
@@ -19,9 +24,12 @@ public class Moderator2 : MonoBehaviour {
 		setState();
 	}
 	
-	// Update is called once per frame
-	void Update () {
-	
+	void InitRobotPosition()
+	{
+		int row = 0;
+		int col = -1;
+		UnityEngine.Debug.Log("Init robot Pos : (" + row + ", " + col + ")");
+		robot.transform.position = new Vector3((col * 2) + 1, 1, -((row * 2) + 1));
 	}
 
 	void SetCamera(int size)
@@ -123,6 +131,7 @@ public class Moderator2 : MonoBehaviour {
 	public static GameObject Instantiate(Vector3 pos, Quaternion rot, string text)
 	{
 		GameObject obj = Instantiate(Resources.Load("Prefabs/StateText"), pos, rot) as GameObject;
+		obj.name = text;
 		obj.GetComponent<TextMesh>().text = text;
 		obj.GetComponent<TextMesh>().fontSize = 45;
 		obj.GetComponent<TextMesh>().characterSize = 0.15f;
@@ -136,61 +145,61 @@ public class Moderator2 : MonoBehaviour {
 		{
 			new	{
 				Name = "S",
-				Position = new Vector3(-1.5f, 0.1f, -0.5f),
+				Position = new Vector3(-1.5f, 1.5f, -0.5f),
 			},
 			new {
 				Name = "G",
-				Position = new Vector3(10.5f, 0.1f, -9.0f),
+				Position = new Vector3(10.5f, 1.5f, -9.0f),
 			},
 			new
 			{
 				Name = "S1",
-				Position = new Vector3(2.5f, 0.1f, -0.5f),
+				Position = new Vector3(2.5f, 1.5f, -0.5f),
 			},
 			new
 			{
 				Name = "S2",
-				Position = new Vector3(8.5f, 0.1f, -0.5f),
+				Position = new Vector3(8.5f, 1.5f, -0.5f),
 			},
 			new
 			{
 				Name = "S3",
-				Position = new Vector3(0.5f, 0.1f, -2.5f),
+				Position = new Vector3(0.5f, 1.5f, -2.5f),
 			},
 			new
 			{
 				Name = "S4",
-				Position = new Vector3(6.5f, 0.1f, -2.5f),
+				Position = new Vector3(6.5f, 1.5f, -2.5f),
 			},
 			new
 			{
 				Name = "S5",
-				Position = new Vector3(2.5f, 0.1f, -4.5f),
+				Position = new Vector3(2.5f, 1.5f, -4.5f),
 			},
 			new
 			{
 				Name = "S6",
-				Position = new Vector3(8.5f, 0.1f, -4.5f),
+				Position = new Vector3(8.5f, 1.5f, -4.5f),
 			},
 			new
 			{
 				Name = "S7",
-				Position = new Vector3(2.5f, 0.1f, -6.5f),
+				Position = new Vector3(2.5f, 1.5f, -6.5f),
 			},
 			new
 			{
 				Name = "S8",
-				Position = new Vector3(4.5f, 0.1f, -4.5f),
+				Position = new Vector3(4.5f, 1.5f, -4.5f),
 			},
 			new
 			{
 				Name = "S9",
-				Position = new Vector3(0.5f, 0.1f, -8.5f),
+				Position = new Vector3(0.5f, 1.5f, -8.5f),
 			},
 			new
 			{
 				Name = "S10",
-				Position = new Vector3(4.5f, 0.1f, -8.5f),
+				Position = new Vector3(4.5f, 1.5f, -8.5f),
 			},
 		};
 
@@ -201,6 +210,7 @@ public class Moderator2 : MonoBehaviour {
 		{
 			states[i] = Instantiate(stateDef[i].Position, rot, stateDef[i].Name) as GameObject;
 		}
+
 	}
 
 }

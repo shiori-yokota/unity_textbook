@@ -189,7 +189,7 @@ public class Moderator2 : MonoBehaviour {
 			new
 			{
 				Name = "S8",
-				Position = new Vector3(4.5f, 1.5f, -4.5f),
+				Position = new Vector3(4.5f, 1.5f, -6.5f),
 			},
 			new
 			{

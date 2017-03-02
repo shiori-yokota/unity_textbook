@@ -7,7 +7,6 @@ using Microsoft.Scripting.Hosting;
 
 public class RobotController2 : MonoBehaviour {
 	GameObject robot;
-	GameObject moderator;
 
 	// python
 	ScriptEngine scriptEngine;  // スクリプト実行用のScriptEngine
@@ -20,6 +19,7 @@ public class RobotController2 : MonoBehaviour {
 
 	bool execute;
 	List<string> stateList = new List<string> { };
+	int totalState = 0;
 	List<int> actionList = new List<int> { };
 	Dictionary<List<string>, List<int>> StateAction = new Dictionary<List<string>, List<int>>();
 
@@ -32,7 +32,6 @@ public class RobotController2 : MonoBehaviour {
 	void Start () {
 		execute = false;
 		robot = GameObject.Find("RobotPy");
-		moderator = GameObject.Find("GameObject");
 		depthFile = Application.dataPath + "/../Python/Chapter2/DepthFirstController.py";
 		breadthFile = Application.dataPath + "/../Python/Chapter2/BreadthFirstController.py";
 		setStateAction();
@@ -68,6 +67,7 @@ public class RobotController2 : MonoBehaviour {
 			robot.transform.position = Vector3.MoveTowards(startPosition, endPosition, distance);
 			if (Vector3.Distance(robot.transform.position, endPosition) < 0.1)
 			{ // 移動完了
+				UnityEngine.Debug.Log("move finish");
 				walk = false;
 				distance = 0.0f;
 				startPosition = endPosition;
@@ -100,6 +100,9 @@ public class RobotController2 : MonoBehaviour {
 		var Result = scriptScope.GetVariable<IronPython.Runtime.List>("CLOSEDLIST");
 		// ロボットが移動します
 		stateList = Result.Cast<string>().ToList();
+		totalState = stateList.Count;
+		if (totalState > 12) UnityEngine.Debug.Log("smooth mode");
+		else UnityEngine.Debug.Log("teleport mode");
 		moveTheRobot();
 	}
 
@@ -127,32 +130,44 @@ public class RobotController2 : MonoBehaviour {
 		var Result = scriptScope.GetVariable<IronPython.Runtime.List>("CLOSEDLIST");
 		// ロボットが移動します
 		stateList = Result.Cast<string>().ToList();
+		totalState = stateList.Count;
+		if (totalState > 12) UnityEngine.Debug.Log("smooth mode");
+		else UnityEngine.Debug.Log("teleport mode");
 		moveTheRobot();
-
 	}
 
 	void moveTheRobot()
 	{
-		if (stateList.Count > 1)    // 最後のstateはゴール
-		{
-			// state[0] はロボットの状態 state[1]はロボットの次の状態
-			List<string> NowNext = new List<string> { stateList[0], stateList[1] };
-			actionList = getActionNum(NowNext);
-			for (int i = 0; i < actionList.Count; i++) UnityEngine.Debug.Log(actionList[i]);
-			Walking();
-			stateList.RemoveAt(0);	// 移動したのでロボットの状態を更新
+		if (totalState > 12) { // smooth mode
+			if (stateList.Count > 1)    // 最後のstateはゴール
+			{
+				// state[0] はロボットの状態 state[1]はロボットの次の状態
+				List<string> NowNext = new List<string> { stateList[0], stateList[1] };
+				actionList = getActionNum(NowNext);
+				for (int i = 0; i < actionList.Count; i++) UnityEngine.Debug.Log(actionList[i]);
+				Walking();
+				stateList.RemoveAt(0);  // 移動したのでロボットの状態を更新
+			} else UnityEngine.Debug.Log("finish");
+		} else { // teleport mode
+			if (stateList.Count > 1)     // 最後のstateはゴール
+			{
+				GameObject endobj = GameObject.Find(stateList[1]);
+				endPosition = endobj.transform.position;
+				Invoke("Teleportation", 1.5f);
+				stateList.RemoveAt(0);
+			} else UnityEngine.Debug.Log("finish");
 		}
-		else	UnityEngine.Debug.Log("finish");
 	}
 
 	List<int> getActionNum(List<string> name)
 	{
 		List<int> act = new List<int>();
+		UnityEngine.Debug.Log("start" + name[0]);
+		UnityEngine.Debug.Log("end" + name[1]);
 		foreach (List<string> key in StateAction.Keys)
 		{
 			// 完全一致
 			if (key.SequenceEqual(name)) act = StateAction[key];
-			// 逆順
 		}
 		return act;
 	}
@@ -163,25 +178,36 @@ public class RobotController2 : MonoBehaviour {
 		{
 			int action = actionList[0];
 
-			if (action == 0)
+			if (action == 0) {
 				endPosition = new Vector3(startPosition.x, startPosition.y, startPosition.z + 2.0f);
-			else if (action == 1)
+				walk = true;
+			} else if (action == 1) {
 				endPosition = new Vector3(startPosition.x + 2.0f, startPosition.y, startPosition.z);
-			else if (action == 2)
+				walk = true;
+			} else if (action == 2) {
 				endPosition = new Vector3(startPosition.x, startPosition.y, startPosition.z - 2.0f);
-			else if (action == 3)
+				walk = true;
+			} else if (action == 3) {
 				endPosition = new Vector3(startPosition.x - 2.0f, startPosition.y, startPosition.z);
-			else
+				walk = true;
+			} else {
 				UnityEngine.Debug.Log("error : not difine next position");
+				walk = false;
+			}
 			actionList.RemoveAt(0);
-			walk = true;
 		}
 		else
 		{
 			UnityEngine.Debug.Log("arrived next state");
-			for (int i = 0; i < stateList.Count; i++) UnityEngine.Debug.Log(stateList[i]);
+			// for (int i = 0; i < stateList.Count; i++) UnityEngine.Debug.Log(stateList[i]);
 			moveTheRobot();
 		}
+	}
+
+	void Teleportation()
+	{
+		robot.transform.position = new Vector3(endPosition.x + 0.5f, robot.transform.position.y, endPosition.z - 0.5f);
+		moveTheRobot();
 	}
 
 	void setStateAction()

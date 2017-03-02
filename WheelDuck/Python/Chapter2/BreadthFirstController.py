@@ -4,7 +4,7 @@ import UnityEngine
 import sys
 sys.path.append(UnityEngine.Application.dataPath + '/../Python/Lib')
 
-list = ["S3", "S4", "S1"]
+list = ["S3", "S4", "S7"]
 
 #while OPENLIST:
 UnityEngine.Debug.Log('OPENLIST : ' + str(OPENLIST))

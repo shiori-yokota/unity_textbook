@@ -61,19 +61,19 @@ public class RobotController2 : MonoBehaviour {
 			}
 		}
 
-		if (walk)
-		{
-			distance += Time.deltaTime * 3;
-			robot.transform.position = Vector3.MoveTowards(startPosition, endPosition, distance);
-			if (Vector3.Distance(robot.transform.position, endPosition) < 0.1)
-			{ // 移動完了
-				UnityEngine.Debug.Log("move finish");
-				walk = false;
-				distance = 0.0f;
-				startPosition = endPosition;
-				Walking();
-			}
-		}
+        if (walk)
+        {
+            distance += Time.deltaTime * 3.0f;
+            robot.transform.position = Vector3.MoveTowards(startPosition, endPosition, distance);
+            if (Vector3.Distance(robot.transform.position, endPosition) < 0.1)
+            { // 移動完了
+                UnityEngine.Debug.Log("move finish");
+                walk = false;
+                distance = 0.0f;
+                startPosition = endPosition;
+                Walking();
+            }
+        }
 	}
 
 	void startDepthFirstSearch()
@@ -141,10 +141,9 @@ public class RobotController2 : MonoBehaviour {
 		if (totalState > 12) { // smooth mode
 			if (stateList.Count > 1)    // 最後のstateはゴール
 			{
-				// state[0] はロボットの状態 state[1]はロボットの次の状態
-				List<string> NowNext = new List<string> { stateList[0], stateList[1] };
-				actionList = getActionNum(NowNext);
-				for (int i = 0; i < actionList.Count; i++) UnityEngine.Debug.Log(actionList[i]);
+				// state[i] はロボットの状態 state[i + 1]はロボットの次の状態
+                List<string> NowNext = new List<string> { stateList[0], stateList[1] };
+                actionList = getActionNum(NowNext);
 				Walking();
 				stateList.RemoveAt(0);  // 移動したのでロボットの状態を更新
 			} else UnityEngine.Debug.Log("finish");
@@ -162,13 +161,19 @@ public class RobotController2 : MonoBehaviour {
 	List<int> getActionNum(List<string> name)
 	{
 		List<int> act = new List<int>();
-		UnityEngine.Debug.Log("start" + name[0]);
-		UnityEngine.Debug.Log("end" + name[1]);
+        int count = 0;
 		foreach (List<string> key in StateAction.Keys)
 		{
-			// 完全一致
-			if (key.SequenceEqual(name)) act = StateAction[key];
+            for (int i = 0; i < key.Count; i++) UnityEngine.Debug.Log("key:" + key[i]);
+            UnityEngine.Debug.Log(" :" + key.SequenceEqual(name));
+            // 完全一致
+            if (key.SequenceEqual(name))
+            {
+                act = StateAction[key];
+                break;
+            } else count++;
 		}
+        if (count >= StateAction.Count) act.Add(-1);
 		return act;
 	}
 
@@ -176,9 +181,9 @@ public class RobotController2 : MonoBehaviour {
 	{
 		if (actionList.Count > 0)
 		{
-			int action = actionList[0];
-
-			if (action == 0) {
+            int action = actionList[0];
+            UnityEngine.Debug.Log(action);
+            if (action == 0) {
 				endPosition = new Vector3(startPosition.x, startPosition.y, startPosition.z + 2.0f);
 				walk = true;
 			} else if (action == 1) {
@@ -199,10 +204,23 @@ public class RobotController2 : MonoBehaviour {
 		else
 		{
 			UnityEngine.Debug.Log("arrived next state");
-			// for (int i = 0; i < stateList.Count; i++) UnityEngine.Debug.Log(stateList[i]);
 			moveTheRobot();
 		}
 	}
+
+    List<int> Return(List<int> action)
+    {
+        List<int> act = new List<int>();
+        for (int i = 0; i < action.Count; i++)
+        {
+            if (action[i] == 0) act.Add(2);
+            else if (action[i] == 1) act.Add(3);
+            else if (action[i] == 2) act.Add(0);
+            else if (action[i] == 3) act.Add(1);
+            else act.Add(-1);
+        }
+        return act;
+    }
 
 	void Teleportation()
 	{
@@ -223,5 +241,17 @@ public class RobotController2 : MonoBehaviour {
 		StateAction.Add(new List<string> { "S7", "S9" }, new List<int> { 2, 3 });
 		StateAction.Add(new List<string> { "S8", "S5" }, new List<int> { 0, 3 });
 		StateAction.Add(new List<string> { "S8", "S10" }, new List<int> { 2 });
-	}
+
+        StateAction.Add(new List<string> { "S3", "S" }, new List<int> { 0, 3 });
+        StateAction.Add(new List<string> { "S4", "S3" }, new List<int> { 3, 3, 3 });
+        StateAction.Add(new List<string> { "S1", "S4" }, new List<int> { 1, 1, 2 });
+        StateAction.Add(new List<string> { "S6", "S4" }, new List<int> { 3, 0 });
+        StateAction.Add(new List<string> { "S2", "S6" }, new List<int> { 2, 2 });
+        StateAction.Add(new List<string> { "G", "S6" }, new List<int> { 3, 3, 0, 1, 0 });
+        StateAction.Add(new List<string> { "S7", "S3" }, new List<int> { 3, 0, 0 });
+        StateAction.Add(new List<string> { "S8", "S7" }, new List<int> { 3 });
+        StateAction.Add(new List<string> { "S9", "S7" }, new List<int> { 1, 0 });
+        StateAction.Add(new List<string> { "S5", "S8" }, new List<int> { 1, 2 });
+        StateAction.Add(new List<string> { "S10", "S8" }, new List<int> { 0 });
+    }
 }

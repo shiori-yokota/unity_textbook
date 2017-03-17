@@ -5,17 +5,10 @@ import sys
 sys.path.append(UnityEngine.Application.dataPath + '/../Python/Lib')
 
 # 迷路のサイズ
-SIZE = 3
-# Goal位置を設定
-GOAL_COL = 2
-GOAL_ROW = 2
-# 報酬
-GOAL_REWARD = 100.0		# ゴールにたどりついた場合
-HIT_WALL_PENALTY = -10.0	# 壁にぶつかった場合
-ONE_STEP_PENALTY = -1.0	# 壁にぶつからずに1マス進んだ場合
-# epsilon-greedy法のパラメータ
-EPSILON = 0.3
-# 割引率
-GAMMA = 0.9
-# 学習率
-BETA = 0.1
+SIZE = 5
+
+# 状態遷移確率
+TRANS = 0.8
+
+# 観測確率
+KANSOKU = 0.7

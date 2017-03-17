@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
@@ -9,21 +9,13 @@ public class Moderator8 : MonoBehaviour {
 	GameObject robot;
 
 	private int MazeSize;
-	private int GOAL_COL;
-	private int GOAL_ROW;
-
-	private double GOAL_REWARD;
-	private double HIT_WALL_PENALTY;
-	private double ONE_STEP_PENALTY;
-
-	bool RobotColli;
-
-	string GameMode;
 
 	// python
 	ScriptEngine scriptEngine;	// スクリプト実行用のScriptEngine
 	ScriptScope scriptScope;	// スクリプトに値を渡すためのScriptScope
 	ScriptSource scriptSource;	// スクリプトのソースを指定するためのScriptSource
+
+
 
 	void Start()
 	{
@@ -43,19 +35,12 @@ public class Moderator8 : MonoBehaviour {
 		scriptScope = scriptEngine.CreateScope();
 		// pythonのソースを指定
 		scriptSource = scriptEngine.CreateScriptSourceFromString(script);
-		// Moderator7.pyのソースを実行する
+		// Moderator8.pyのソースを実行する
 		scriptSource.Execute(scriptScope);
 
 		/* Moderator7.pyを実行した結果を取得 */
 		// 迷路のサイズを設定
 		MazeSize = scriptScope.GetVariable<int>("SIZE");
-		// ゴール位置を設定
-		GOAL_COL = scriptScope.GetVariable<int>("GOAL_COL");
-		GOAL_ROW = scriptScope.GetVariable<int>("GOAL_ROW");
-		// 報酬を設定
-		GOAL_REWARD = scriptScope.GetVariable<double>("GOAL_REWARD");
-		HIT_WALL_PENALTY = scriptScope.GetVariable<double>("HIT_WALL_PENALTY");
-		ONE_STEP_PENALTY = scriptScope.GetVariable<double>("ONE_STEP_PENALTY");
 
 		// カメラの設定
 		SetCamera(MazeSize);
@@ -65,25 +50,6 @@ public class Moderator8 : MonoBehaviour {
 		SetMaze(MazeSize);
 		// ロボットの初期位置を設定する
 		InitRobotPosition(MazeSize);
-	}
-
-	void Update()
-	{
-		if (Input.GetKeyDown(KeyCode.L))
-		{
-			GameMode = "learn";
-			robot.SendMessage("GameMode", GameMode);
-			UnityEngine.Debug.Log("Q Learning Start");
-			/* 環境設定が終わったので，Q-Learningを開始する */
-			robot.SendMessage("QLearning_start", false);
-		}
-		if (Input.GetKeyDown(KeyCode.M))
-		{
-			GameMode = "move";
-			robot.SendMessage("GameMode", GameMode);
-			UnityEngine.Debug.Log("Moving Start");
-			robot.SendMessage("Moving_start", "new");
-		}
 	}
 
 	void SetCamera(int size)
@@ -185,83 +151,22 @@ public class Moderator8 : MonoBehaviour {
 		int col = Random.Range (0, size);
 		UnityEngine.Debug.Log ("Init robot Pos : (" + row + ", " + col + ")");
 		robot.transform.position = new Vector3 ((col * 2) + 1, 1, -((row * 2) + 1));
-		if (row == GOAL_ROW && col == GOAL_COL) InitRobotPosition(size);
-		else setPosition(row, col);
 	}
 
-	void setPosition(int row, int col)
-	{
-		// 初期位置をロボットに伝える
-		int[] state = new int[] { row, col };
-		robot.SendMessage("Position", state);
-	}
+    void ViewProb(List<double> val)
+    {
 
-	int[] transPos2rowcol(Vector3 pos)
-	{
-		int row = -(((int)pos.z + 1) / 2);
-		int col = ((int)pos.x - 1) / 2;
-		int[] arr = new int[] { row, col };
-		return arr;
-	}
+    }
 
-	/* Robotがゴール位置にいるかどうかを判定 */
-	bool CheckGoalPosition(int[] arr)
-	{
-		int row = arr[0];
-		int col = arr[1];
-		UnityEngine.Debug.Log("row : " + row + ", col : " + col);
-		UnityEngine.Debug.Log("goal row : " + GOAL_ROW + ", goal col : " + GOAL_COL);
-		if (col == GOAL_COL)
-			if (row == GOAL_ROW) return true;
-			else return false;
-		else
-			return false;
-	}
+    public static GameObject Instantiate(Vector3 pos, Quaternion rot, string text)
+    {
+        GameObject obj = Instantiate(Resources.Load("Prefabs/StateText"), pos, rot) as GameObject;
+        obj.name = text;
+        obj.GetComponent<TextMesh>().text = text;
+        obj.GetComponent<TextMesh>().fontSize = 45;
+        obj.GetComponent<TextMesh>().characterSize = 0.15f;
 
-	void CheckPosition(int[] arr)
-	{
-		int row = arr[0];
-		int col = arr[1];
-		UnityEngine.Debug.Log("row : " + row + ", col : " + col);
-		UnityEngine.Debug.Log("goal row : " + GOAL_ROW + ", goal col : " + GOAL_COL);
-		if (col == GOAL_COL && row == GOAL_ROW)
-		{
-			UnityEngine.Debug.Log("Finish");
-			NextEpisode();
-		}
-		else
-		{
-			UnityEngine.Debug.Log("次のStep");
-			robot.SendMessage("Moving_start", "continue");
-		}
-	}
+        return obj;
+    }
 
-	void RobotCollision(bool colli)
-	{
-		RobotColli = colli;
-	}
-
-	/* Robotの行動に対して報酬を答える */
-	void GetReward(int[] arr)
-	{
-		double reward_value;
-		if (CheckGoalPosition(arr))
-			reward_value = GOAL_REWARD;
-		else
-			if (RobotColli) reward_value = HIT_WALL_PENALTY;
-			else reward_value = ONE_STEP_PENALTY;
-		robot.SendMessage("sendReward", reward_value);
-	}
-
-	void NextEpisode()
-	{
-		InitRobotPosition(MazeSize);
-		Invoke("q_start", 2.0f);
-	}
-
-	void q_start()
-	{
-		if (GameMode == "learn") robot.SendMessage("QLearning_start", false);
-		else if (GameMode == "move") robot.SendMessage("Moving_start", "new");
-	}
 }

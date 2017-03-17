@@ -14,11 +14,9 @@ public class RobotController3 : MonoBehaviour {
 	ScriptSource scriptSource;  // スクリプトのソースを指定するためのScriptSource
 
 	string script;
-	string depthFile;
-	string breadthFile;
+	string filename;
     
 	List<string> stateList = new List<string> { };
-	int totalState = 0;
 	List<int> actionList = new List<int> { };
 	Dictionary<List<string>, List<int>> StateAction = new Dictionary<List<string>, List<int>>();
 
@@ -30,13 +28,13 @@ public class RobotController3 : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		robot = GameObject.Find("RobotPy");
-		depthFile = Application.dataPath + "/../Python/Chapter3/Astar.py";
+		filename = Application.dataPath + "/../Python/Chapter3/Astar.py";
 		setStateAction();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.S))
         {
             startPosition = robot.transform.position;
             UnityEngine.Debug.Log("START A* ALGORITHM");
@@ -49,7 +47,7 @@ public class RobotController3 : MonoBehaviour {
             robot.transform.position = Vector3.MoveTowards(startPosition, endPosition, distance);
             if (Vector3.Distance(robot.transform.position, endPosition) < 0.1)
             { // 移動完了
-                UnityEngine.Debug.Log("move finish");
+                // UnityEngine.Debug.Log("move finish");
                 walk = false;
                 distance = 0.0f;
                 startPosition = endPosition;
@@ -60,7 +58,7 @@ public class RobotController3 : MonoBehaviour {
 
 	void Astar()
 	{
-		using (StreamReader sr = new StreamReader(depthFile, System.Text.Encoding.UTF8))
+		using (StreamReader sr = new StreamReader(filename, System.Text.Encoding.UTF8))
 		{
 			script = sr.ReadToEnd();
 		}
@@ -82,32 +80,19 @@ public class RobotController3 : MonoBehaviour {
 		var Result = scriptScope.GetVariable<IronPython.Runtime.List>("CLOSEDLIST");
 		// ロボットが移動します
 		stateList = Result.Cast<string>().ToList();
-		totalState = stateList.Count;
-		if (totalState > StateAction.Count + 1) UnityEngine.Debug.Log("smooth mode");
-		else UnityEngine.Debug.Log("teleport mode");
 		moveTheRobot();
 	}
 
 	void moveTheRobot()
 	{
-		if (totalState > 12) { // smooth mode
-			if (stateList.Count > 1)    // 最後のstateはゴール
-			{
-				// state[i] はロボットの状態 state[i + 1]はロボットの次の状態
-                List<string> NowNext = new List<string> { stateList[0], stateList[1] };
-                actionList = getActionNum(NowNext);
-				Walking();
-				stateList.RemoveAt(0);  // 移動したのでロボットの状態を更新
-			} else UnityEngine.Debug.Log("finish");
-		} else { // teleport mode
-			if (stateList.Count > 1)     // 最後のstateはゴール
-			{
-				GameObject endobj = GameObject.Find(stateList[1]);
-				endPosition = endobj.transform.position;
-				Invoke("Teleportation", 1.5f);
-				stateList.RemoveAt(0);
-			} else UnityEngine.Debug.Log("finish");
-		}
+		if (stateList.Count > 1)    // 最後のstateはゴール
+		{
+			// state[i] はロボットの状態 state[i + 1]はロボットの次の状態
+            List<string> NowNext = new List<string> { stateList[0], stateList[1] };
+            actionList = getActionNum(NowNext);
+			Walking();
+			stateList.RemoveAt(0);  // 移動したのでロボットの状態を更新
+		} else UnityEngine.Debug.Log("Finish");
 	}
 
 	List<int> getActionNum(List<string> name)
@@ -116,8 +101,8 @@ public class RobotController3 : MonoBehaviour {
         int count = 0;
 		foreach (List<string> key in StateAction.Keys)
 		{
-            for (int i = 0; i < key.Count; i++) UnityEngine.Debug.Log("key:" + key[i]);
-            UnityEngine.Debug.Log(" :" + key.SequenceEqual(name));
+            // for (int i = 0; i < key.Count; i++) UnityEngine.Debug.Log("key:" + key[i]);
+            // UnityEngine.Debug.Log(" :" + key.SequenceEqual(name));
             // 完全一致
             if (key.SequenceEqual(name))
             {
@@ -134,7 +119,7 @@ public class RobotController3 : MonoBehaviour {
 		if (actionList.Count > 0)
 		{
             int action = actionList[0];
-            UnityEngine.Debug.Log(action);
+            // UnityEngine.Debug.Log(action);
             if (action == 0) {
 				endPosition = new Vector3(startPosition.x, startPosition.y, startPosition.z + 2.0f);
 				walk = true;
@@ -155,7 +140,7 @@ public class RobotController3 : MonoBehaviour {
 		}
 		else
 		{
-			UnityEngine.Debug.Log("arrived next state");
+			// UnityEngine.Debug.Log("arrived next state");
 			moveTheRobot();
 		}
 	}

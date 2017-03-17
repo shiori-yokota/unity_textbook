@@ -4,8 +4,11 @@ import UnityEngine
 import sys
 sys.path.append(UnityEngine.Application.dataPath + '/../Python/Lib')
 
-list = ["S3", "S4", "S1", "S4", "S6", "G", "S6", "S2", "S6", "S4", "S3", "S7", "S8", "S5", "S8", "S10", "S8", "S7", "S9"]
-# list = ["S3", "S4", "S1", "S6", "G", "S2", "S7", "S8", "S5", "S10","S9"]
+list = [] 
+list.append(["S3", 8])
+list.append(["S4", 5])
+list.append(["S6", 3])
+list.append(["G", 0])
 
 UnityEngine.Debug.Log('OPENLIST : ' + str(OPENLIST))
 UnityEngine.Debug.Log('CLOSEDLIST : ' + str(CLOSEDLIST))
@@ -23,7 +26,13 @@ stack = OPENLIST
 #		CLOSEDLIST.append(label)
 #		stack = list + OPENLIST
 
-CLOSEDLIST = OPENLIST + list	# CLOSEDLISTに状態名を入れてください
+# CLOSEDLISTに状態名を入れてください
+flat_list = []
+for e in list:
+	flat_list.extend(e)
+list_str = flat_list[0::2]
+
+CLOSEDLIST = OPENLIST + list_str
 
 UnityEngine.Debug.Log('OPENLIST : ' + str(OPENLIST))
 UnityEngine.Debug.Log('CLOSEDLIST : ' + str(CLOSEDLIST))

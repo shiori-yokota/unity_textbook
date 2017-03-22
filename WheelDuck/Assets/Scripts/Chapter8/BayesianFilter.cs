@@ -26,7 +26,8 @@ public class BayesianFilter : MonoBehaviour
     double KANSOKU;    
 
     IronPython.Runtime.List SONZAI = new IronPython.Runtime.List { };
-    IronPython.Runtime.List stateSONZAI = new IronPython.Runtime.List { };
+    IronPython.Runtime.List preSONZAI = new IronPython.Runtime.List { };
+    IronPython.Runtime.List WALLS = new IronPython.Runtime.List { };
     int action = -1;
     int TrialCount = 0;
 
@@ -60,6 +61,7 @@ public class BayesianFilter : MonoBehaviour
         SIZE = scriptScope.GetVariable<int>("SIZE");
         TRANS = scriptScope.GetVariable<double>("TRANS");
         KANSOKU = scriptScope.GetVariable<double>("KANSOKU");
+        WALLS = scriptScope.GetVariable<IronPython.Runtime.List>("WALLS");
     }
 
     private void Update()
@@ -115,13 +117,14 @@ public class BayesianFilter : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        UnityEngine.Debug.Log("*** 壁にぶつかった ***");
         walk = false;
         Colli = true;
         distance = 0.0f;
         // 壁にぶつかったらもといた場所に戻る
         endPosition = startPosition;
         robot.transform.position = endPosition;
-
+        
         FromTheSecondTime();
     }
 
@@ -147,10 +150,10 @@ public class BayesianFilter : MonoBehaviour
         // Moderator.pyのソースを実行する
         scriptSource.Execute(scriptScope);
 
-        SONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("preSONZAI");
-        stateSONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("SONZAI");
+        preSONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("preSONZAI");
+        SONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("SONZAI");
 
-        viewProb();
+        viewProb(preSONZAI);
         input = true;
     }
 
@@ -158,6 +161,8 @@ public class BayesianFilter : MonoBehaviour
     {
         TrialCount++;
         startPosition = robot.transform.position;
+
+        string WallList = getWallStatus(startPosition);
 
         string script;
         string filename = Application.dataPath + "/../Python/Chapter8/BayesianFilter.py";
@@ -176,17 +181,19 @@ public class BayesianFilter : MonoBehaviour
         scriptScope.SetVariable("SIZE", SIZE);
         scriptScope.SetVariable("TRANS", TRANS);
         scriptScope.SetVariable("KANSOKU", KANSOKU);
-        scriptScope.SetVariable("preSONZAI", stateSONZAI);
+        scriptScope.SetVariable("preSONZAI", preSONZAI);
         scriptScope.SetVariable("SONZAI", SONZAI);
         scriptScope.SetVariable("Colli", Colli);
         scriptScope.SetVariable("ACTION", action);
+        scriptScope.SetVariable("WALL", WallList);
+        scriptScope.SetVariable("tmpWALLS", WALLS);
         // Moderator.pyのソースを実行する
         scriptSource.Execute(scriptScope);
+        
+        preSONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("preSONZAI");
+        SONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("SONZAI");
 
-        SONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("preSONZAI");
-        stateSONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("SONZAI");
-
-        viewProb();
+        viewProb(SONZAI);
         input = true;
     }
 
@@ -205,10 +212,31 @@ public class BayesianFilter : MonoBehaviour
         walk = true;
     }
 
-    void viewProb()
+    void viewProb(IronPython.Runtime.List prob)
     {
         GameObject moderator = GameObject.Find("GameObject");
-        List<double> stateVal = stateSONZAI.Cast<double>().ToList();
+        List<double> stateVal = prob.Cast<double>().ToList();
         moderator.SendMessage("ViewProb", stateVal);
+    }
+
+    string getWallStatus(Vector3 pos)
+    {
+        int state = position2state(pos);
+        List<string> stateVal = WALLS.Cast<string>().ToList();
+        // UnityEngine.Debug.Log("walls : " + stateVal[state]);
+        string walls = stateVal[state];
+
+        return walls;
+    }
+
+    int position2state(Vector3 pos)
+    {
+        int z = (Mathf.RoundToInt(pos.x) - 1) / 2;
+        int x = ((-(Mathf.RoundToInt(pos.z)) - 1) / 2);
+        
+        int statenum = 5 * x + z;
+        // UnityEngine.Debug.Log("state : " + statenum);
+
+        return statenum;
     }
 }

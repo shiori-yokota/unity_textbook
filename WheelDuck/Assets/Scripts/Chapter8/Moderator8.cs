@@ -155,7 +155,142 @@ public class Moderator8 : MonoBehaviour {
 
     void ViewProb(List<double> val)
     {
+        var stateDef = new[]
+        {
+            new {
+                Name = val[0].ToString("F2"),
+                Position = new Vector3(0.5f, 1.5f, -0.5f),
+            },
+            new {
+                Name = val[1].ToString("F2"),
+                Position = new Vector3(2.5f, 1.5f, -0.5f),
+            },
+            new
+            {
+                Name = val[2].ToString("F2"),
+                Position = new Vector3(4.5f, 1.5f, -0.5f),
+            },
+            new
+            {
+                Name = val[3].ToString("F2"),
+                Position = new Vector3(6.5f, 1.5f, -0.5f),
+            },
+            new
+            {
+                Name = val[4].ToString("F2"),
+                Position = new Vector3(8.5f, 1.5f, -0.5f),
+            },
+            new
+            {
+                Name = val[5].ToString("F2"),
+                Position = new Vector3(0.5f, 1.5f, -2.5f),
+            },
+            new
+            {
+                Name = val[6].ToString("F2"),
+                Position = new Vector3(2.5f, 1.5f, -2.5f),
+            },
+            new
+            {
+                Name = val[7].ToString("F2"),
+                Position = new Vector3(4.5f, 1.5f, -2.5f),
+            },
+            new
+            {
+                Name = val[8].ToString("F2"),
+                Position = new Vector3(6.5f, 1.5f, -2.5f),
+            },
+            new
+            {
+                Name = val[9].ToString("F2"),
+                Position = new Vector3(8.5f, 1.5f, -2.5f),
+            },
+            new
+            {
+                Name = val[10].ToString("F2"),
+                Position = new Vector3(0.5f, 1.5f, -4.5f),
+            },
+            new
+            {
+                Name = val[11].ToString("F2"),
+                Position = new Vector3(2.5f, 1.5f, -4.5f),
+            },
+            new
+            {
+                Name = val[12].ToString("F2"),
+                Position = new Vector3(4.5f, 1.5f, -4.5f),
+            },
+            new
+            {
+                Name = val[13].ToString("F2"),
+                Position = new Vector3(6.5f, 1.5f, -4.5f),
+            },
+            new
+            {
+                Name = val[14].ToString("F2"),
+                Position = new Vector3(8.5f, 1.5f, -4.5f),
+            },
+            new
+            {
+                Name = val[15].ToString("F2"),
+                Position = new Vector3(0.5f, 1.5f, -6.5f),
+            },
+            new
+            {
+                Name = val[16].ToString("F2"),
+                Position = new Vector3(2.5f, 1.5f, -6.5f),
+            },
+            new
+            {
+                Name = val[17].ToString("F2"),
+                Position = new Vector3(4.5f, 1.5f, -6.5f),
+            },
+            new
+            {
+                Name = val[18].ToString("F2"),
+                Position = new Vector3(6.5f, 1.5f, -6.5f),
+            },
+            new
+            {
+                Name = val[19].ToString("F2"),
+                Position = new Vector3(8.5f, 1.5f, -6.5f),
+            },
+            new
+            {
+                Name = val[20].ToString("F2"),
+                Position = new Vector3(0.5f, 1.5f, -8.5f),
+            },
+            new
+            {
+                Name = val[21].ToString("F2"),
+                Position = new Vector3(2.5f, 1.5f, -8.5f),
+            },
+            new
+            {
+                Name = val[22].ToString("F2"),
+                Position = new Vector3(4.5f, 1.5f, -8.5f),
+            },
+            new
+            {
+                Name = val[23].ToString("F2"),
+                Position = new Vector3(6.5f, 1.5f, -8.5f),
+            },
+            new
+            {
+                Name = val[24].ToString("F2"),
+                Position = new Vector3(8.5f, 1.5f, -8.5f),
+            },
 
+        };
+
+        GameObject[] states = new GameObject[stateDef.Length];
+        Quaternion rot = Quaternion.identity;
+        rot.eulerAngles = new Vector3(90, 0, 0);
+        for (int i = 0; i < stateDef.Length; i++)
+        {
+            states[i] = Instantiate(stateDef[i].Position, rot, stateDef[i].Name) as GameObject;
+            Destroy(states[i], 4.0f);
+        }
     }
 
     public static GameObject Instantiate(Vector3 pos, Quaternion rot, string text)
@@ -163,7 +298,7 @@ public class Moderator8 : MonoBehaviour {
         GameObject obj = Instantiate(Resources.Load("Prefabs/StateText"), pos, rot) as GameObject;
         obj.name = text;
         obj.GetComponent<TextMesh>().text = text;
-        obj.GetComponent<TextMesh>().fontSize = 45;
+        obj.GetComponent<TextMesh>().fontSize = 30;
         obj.GetComponent<TextMesh>().characterSize = 0.15f;
 
         return obj;

@@ -14,12 +14,3 @@ Unityのアセットに登録（コピー）する
 　　# Microsoft.Scripting.Core.dll
 　　# Microsoft.Scripting.dll
 　　# Microsoft.Scripting.Metadata.dll
-
-Pythonの標準モジュールを使用する
-IronPythonのLibフォルダをWheelDuck/Python/フォルダにコピーする
-
-Unityのプロジェクト設定を変更する
-組み込んだIronPythonが動作するようにプロジェクトの設定を変更する
-　　# Edit -> Project Settings -> Player メニューから
-　　　 PlayerSettings インスペクターを開きOptimization セクションにある
-　　　 Api Compatibility Level を .NET 2.0に設定する

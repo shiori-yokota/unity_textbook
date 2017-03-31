@@ -18,7 +18,6 @@ public class ParticleFilter : MonoBehaviour
     bool walk;
     bool input;
     bool execute = true;
-    bool Colli = false;
     float distance;
 
     int SIZE = 0;
@@ -120,7 +119,6 @@ public class ParticleFilter : MonoBehaviour
     {
         UnityEngine.Debug.Log("*** 壁にぶつかった ***");
         walk = false;
-        Colli = true;
         distance = 0.0f;
         // 壁にぶつかったらもといた場所に戻る
         endPosition = startPosition;
@@ -179,11 +177,11 @@ public class ParticleFilter : MonoBehaviour
         // pythonのソースを指定
         scriptSource = scriptEngine.CreateScriptSourceFromString(script);
         scriptScope.SetVariable("TimeCount", TrialCount);
+        scriptScope.SetVariable("PA", PA);
         scriptScope.SetVariable("SIZE", SIZE);
         scriptScope.SetVariable("TRANS", TRANS);
         scriptScope.SetVariable("KANSOKU", KANSOKU);
         scriptScope.SetVariable("PRTCL", PRTCL);
-        scriptScope.SetVariable("Colli", Colli);
         scriptScope.SetVariable("ACTION", action);
         scriptScope.SetVariable("WALL", WallList);
         scriptScope.SetVariable("tmpWALLS", WALLS);

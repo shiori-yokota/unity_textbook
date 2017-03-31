@@ -38,7 +38,7 @@ public class Moderator9 : MonoBehaviour {
 		// Moderator9.pyのソースを実行する
 		scriptSource.Execute(scriptScope);
 
-		/* Moderator7.pyを実行した結果を取得 */
+		/* Moderator9.pyを実行した結果を取得 */
 		// 迷路のサイズを設定
 		MazeSize = scriptScope.GetVariable<int>("SIZE");
 

@@ -1,15 +1,12 @@
 ﻿using UnityEngine;
-using System.Linq;
-using System.Collections.Generic;
-using System.IO;
-using IronPython.Hosting;
-using Microsoft.Scripting.Hosting;
+using System;
 
 public class RobotController : MonoBehaviour
 {
     GameObject robot;
     
     bool walk;
+    bool spine;
     bool input;
     bool execute = true;
     float distance;
@@ -19,17 +16,24 @@ public class RobotController : MonoBehaviour
     private Vector3 startPosition;
     private Vector3 endPosition;
 
+    private string datetimeStr;
+
     void Start()
     {
         robot = GameObject.Find("RobotPy");
         startPosition = robot.transform.position;
 
         walk = false;
+        spine = false;
         input = false;
     }
 
     private void Update()
     {
+        datetimeStr = System.DateTime.Now.Year.ToString() + System.DateTime.Now.Month.ToString().PadLeft(2, '0')
+                        + System.DateTime.Now.Day.ToString().PadLeft(2, '0') + System.DateTime.Now.Hour.ToString().PadLeft(2, '0')
+                        + System.DateTime.Now.Minute.ToString().PadLeft(2, '0') + System.DateTime.Now.Second.ToString().PadLeft(2, '0');
+        
         if (execute)
         {
             if (Input.GetKeyDown(KeyCode.S))
@@ -53,7 +57,9 @@ public class RobotController : MonoBehaviour
             {
                 action = 1;
                 input = false;
-                Moving();
+                // Moving();
+                Debug.Log("回転する");
+                Rotate();
             }
             else if (Input.GetKeyDown(KeyCode.DownArrow))
             {
@@ -65,8 +71,16 @@ public class RobotController : MonoBehaviour
             {
                 action = 3;
                 input = false;
-                Moving();
+                //Moving();
+                Debug.Log("回転する");
+                Rotate();
             }
+
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                Application.CaptureScreenshot(Application.dataPath + "/ScreenShot/" + datetimeStr + ".jpg");
+            }
+            
         }
         if (walk)
         {
@@ -79,6 +93,13 @@ public class RobotController : MonoBehaviour
 
                 startPosition = endPosition;
                 input = true;
+            }
+        }
+        if (spine)
+        {
+            if (action == 1)
+            {
+                robot.transform.Rotate(transform.right, 1);
             }
         }
     }
@@ -108,6 +129,15 @@ public class RobotController : MonoBehaviour
         else
             UnityEngine.Debug.Log("error : not difine endPosition");
         walk = true;
+    }
+
+    void Rotate()
+    {
+        if (action == 1)
+        {
+            Debug.Log("回転させる");
+            robot.transform.Rotate(transform.right);
+        }
     }
 
 }

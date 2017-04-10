@@ -60,8 +60,25 @@ public class Moderator10 : MonoBehaviour {
 
 	void SetLight(int size)
 	{
-		GameObject light = GameObject.Find ("Directional light");
-		light.transform.position = new Vector3 (size, size * 2, -size);
+		//GameObject light = GameObject.Find ("Directional light");
+		//light.transform.position = new Vector3 (size, size * 2, -size);
+
+        GameObject[] spotlights = new GameObject[size * size];
+        GameObject prefab = (GameObject)Resources.Load("Prefabs/Area Light");
+        prefab.tag = "CeilingLight";
+        Light lightComp = prefab.GetComponent<Light>();
+        lightComp.range = 5.0f;
+        lightComp.intensity = 2.3f;
+        Quaternion rot = Quaternion.identity;
+        rot.eulerAngles = new Vector3(90, 0, 0);
+        int i = 0;
+        for (int row = 0; row < size; row++)
+            for (int col = 0; col < size; col++)
+            {
+                spotlights[i] = Instantiate(prefab, new Vector3(col * 2 + 1.0f, 2.04f, -(row * 2 + 1.0f)), rot) as GameObject;
+                if (i % 2 != 0) spotlights[i].SetActive(false);
+                i++;
+            }
 	}
 
 	void SetMaze(int size)
@@ -70,10 +87,8 @@ public class Moderator10 : MonoBehaviour {
 		GameObject floor = GameObject.Find ("Floor");
 		floor.transform.localScale = new Vector3 (size * 2, 0.5f, size * 2);
 		floor.transform.position = new Vector3 (size, 0, -size);
-        // 天井の設定
         GameObject ceiling = GameObject.Find("Ceiling");
-        ceiling.transform.localScale = new Vector3(1, 2.0f, 1);
-        ceiling.transform.position = new Vector3(size, 2, -size);
+        ceiling.transform.position = new Vector3(size, 1.9f, -size);
 		//外壁の設定
 		SetOuterWall(size);
 		// 内壁の設定

@@ -1,6 +1,7 @@
 [初期状態]
-　OPENLISTには"S"が入っています。
-　CLOSEDLISTは空になっています。
+　OPENLISTには"S"が入っています
+　CLOSEDLISTは空になっています
+　GOALには"G"が入っています
 
 * Sequence_list
 　ノードを状態の記号で表現したもの（状態集合）

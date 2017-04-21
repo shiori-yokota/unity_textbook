@@ -5,10 +5,10 @@ import sys
 sys.path.append(UnityEngine.Application.dataPath + '/../Python/Lib')
 
 # 迷路のサイズ
-SIZE = 3
+SIZE = 5
 # Goal位置を設定
-GOAL_COL = 2
-GOAL_ROW = 2
+GOAL_COL = 4
+GOAL_ROW = 4
 # 報酬
 GOAL_REWARD = 100.0		# ゴールにたどりついた場合
 HIT_WALL_PENALTY = -10.0	# 壁にぶつかった場合

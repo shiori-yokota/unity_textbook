@@ -22,6 +22,7 @@ public class QLearning : MonoBehaviour
 
 	private bool walk;
 	bool Colli;
+    bool stop = false;
 	private Vector3 startPosition;
 	private Vector3 endPosition;
 	float distance;
@@ -67,18 +68,26 @@ public class QLearning : MonoBehaviour
 
 	void Update()
 	{
-		if (walk)
-		{
-			distance += Time.deltaTime * 3;
-			robot.transform.position = Vector3.MoveTowards(startPosition, endPosition, distance);
-			if (Vector3.Distance(robot.transform.position, endPosition) < 0.1)
-			{ // 移動完了
-				moderator.SendMessage("RobotCollision", Colli);
-				walk = false;
-				distance = 0.0f;
-				walkFinish();
-			}
-		}
+        if (walk)
+        {
+            distance += Time.deltaTime * 3;
+            robot.transform.position = Vector3.MoveTowards(startPosition, endPosition, distance);
+            if (Vector3.Distance(robot.transform.position, endPosition) < 0.1)
+            { // 移動完了
+                moderator.SendMessage("RobotCollision", Colli);
+                distance = 0.0f;
+                walk = false;
+                if (stop) STOP();
+                else walkFinish();
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            Debug.Log("************************************");
+            stop = true;
+        }
+        
 	}
 
 	void OnCollisionEnter(Collision collision)
@@ -256,4 +265,10 @@ public class QLearning : MonoBehaviour
 		// 行動が決まったので移動する
 		Walk(action);
 	}
+
+    void STOP()
+    {
+        Debug.Log("*******************");
+    }
+
 }

@@ -1,9 +1,0 @@
-【IronPythonのインストール】
-・IronPython.net /からIronPython2.7をダウンロード
-	Download IronPythonをクリックしていけばmsi版が落とせる
-	※zip版もありますが、Pythonモジュールが含まれていないため素直にmsi版で行う
-	msiは32bitなのでx64環境のWindowsでは(x86)がついたディレクトリに展開すること
-	
-・パスを通す
-	パスを通せば、cmdからipy又はipy64と打ち込むだけでインタラクティブシェルが利用できる
-	

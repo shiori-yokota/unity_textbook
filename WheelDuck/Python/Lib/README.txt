@@ -1,2 +1,0 @@
-Pythonの標準モジュールを使用する
-IronPythonのLibフォルダをWheelDuck/Python/フォルダにコピーする

@@ -106,6 +106,8 @@ def readQvalue(Q):
 		s2 += 4
 	return Q
 
+#################### Main ####################
+
 # Q値を初期化する
 if CONTINUE != True:
 	UnityEngine.Debug.Log('************')

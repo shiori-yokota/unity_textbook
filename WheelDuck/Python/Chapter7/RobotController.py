@@ -77,6 +77,8 @@ def best_value_action(state, Q):
 			UnityEngine.Debug.Log('[W: 3]')
 	return action
 
+############### Main ###############
+
 qvalue = init_qvalues()
 qvalue = readQvalue(qvalue)
 UnityEngine.Debug.Log('ROW , COL : ' + str(ROW) + str(COL))

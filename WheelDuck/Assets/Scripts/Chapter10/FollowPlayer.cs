@@ -16,6 +16,8 @@ public class FollowPlayer : MonoBehaviour {
 	void Update () {
         // 自分の座標にtargetの座標を代入する
         GetComponent<Transform>().position = target.position + offset;
+        GetComponent<Transform>().rotation = target.rotation;
 
-	}
+
+    }
 }

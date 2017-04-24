@@ -22,7 +22,7 @@ while queue:
 
 	if label not in CLOSEDLIST:
 		CLOSEDLIST.append(label)
-		queue += list
+		queue += Sequence_list
 
 #############################
 

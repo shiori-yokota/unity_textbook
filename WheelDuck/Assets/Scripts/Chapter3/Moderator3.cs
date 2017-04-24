@@ -1,18 +1,29 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
-using System.IO;
+using System;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 
 public class Moderator3 : MonoBehaviour {
 	GameObject robot;
+    GameObject GoodStamp;
 
-	private int MazeSize;
+    private Toggle toggle;
+    public bool effectOn;
+
+
+    private int MazeSize;
 
 	void Start () {
-		robot = GameObject.Find("RobotPy");
+        robot = GameObject.Find("RobotPy");
+        GoodStamp = GameObject.Find("Plane");
+        GoodStamp.SetActive(false);
 
-		MazeSize = 5;
+        toggle = GameObject.Find("Toggle").GetComponent<Toggle>();
+        effectOn = toggle.isOn;
+
+        MazeSize = 5;
 
 		// ロボットの初期位置を設定する
 		InitRobotPosition();
@@ -141,69 +152,69 @@ public class Moderator3 : MonoBehaviour {
 
 	void setState()
 	{
-		var stateDef = new[]
-		{
-			new	{
-				Name = "S",
-				Position = new Vector3(-1.5f, 1.5f, -0.5f),
-			},
-			new {
-				Name = "G",
-				Position = new Vector3(10.5f, 1.5f, -9.0f),
-			},
-			new
-			{
-				Name = "S1",
-				Position = new Vector3(2.5f, 1.5f, -0.5f),
-			},
-			new
-			{
-				Name = "S2",
-				Position = new Vector3(8.5f, 1.5f, -0.5f),
-			},
-			new
-			{
-				Name = "S3",
-				Position = new Vector3(0.5f, 1.5f, -2.5f),
-			},
-			new
-			{
-				Name = "S4",
-				Position = new Vector3(6.5f, 1.5f, -2.5f),
-			},
-			new
-			{
-				Name = "S5",
-				Position = new Vector3(2.5f, 1.5f, -4.5f),
-			},
-			new
-			{
-				Name = "S6",
-				Position = new Vector3(8.5f, 1.5f, -4.5f),
-			},
-			new
-			{
-				Name = "S7",
-				Position = new Vector3(2.5f, 1.5f, -6.5f),
-			},
-			new
-			{
-				Name = "S8",
-				Position = new Vector3(4.5f, 1.5f, -6.5f),
-			},
-			new
-			{
-				Name = "S9",
-				Position = new Vector3(0.5f, 1.5f, -8.5f),
-			},
-			new
-			{
-				Name = "S10",
-				Position = new Vector3(4.5f, 1.5f, -8.5f),
-			},
-		};
+        var stateDef = new[]
+        {
+            new {
+                Name = "S",
+                Position = new Vector3(-1.0f, 0.0f, -1.0f),
+            },
+            new {
+                Name = "G",
+                Position = new Vector3(11.0f, 0.0f, -9.0f),
+            },
+            new
+            {
+                Name = "S1",
+                Position = new Vector3(3.0f, 0.0f, -1.0f),
+            },
+            new
+            {
+                Name = "S2",
+                Position = new Vector3(9.0f, 0.0f, -1.0f),
+            },
+            new
+            {
+                Name = "S3",
+                Position = new Vector3(1.0f, 0.0f, -3.0f),
+            },
+            new
+            {
+                Name = "S4",
+                Position = new Vector3(7.0f, 0.0f, -3.0f),
+            },
+            new
+            {
+                Name = "S5",
+                Position = new Vector3(3.0f, 0.0f, -5.0f),
+            },
+            new
+            {
+                Name = "S6",
+                Position = new Vector3(9.0f, 0.0f, -5.0f),
+            },
+            new
+            {
+                Name = "S7",
+                Position = new Vector3(3.0f, 0.0f, -7.0f),
+            },
+            new
+            {
+                Name = "S8",
+                Position = new Vector3(5.0f, 0.0f, -7.0f),
+            },
+            new
+            {
+                Name = "S9",
+                Position = new Vector3(1.0f, 0.0f, -9.0f),
+            },
+            new
+            {
+                Name = "S10",
+                Position = new Vector3(5.0f, 0.0f, -9.0f),
+            },
+        };
 
-		GameObject[] states = new GameObject[stateDef.Length];
+        GameObject[] states = new GameObject[stateDef.Length];
 		Quaternion rot = Quaternion.identity;
 		rot.eulerAngles = new Vector3(90, 0, 0);
 		for (int i = 0; i < stateDef.Length; i++)
@@ -212,5 +223,39 @@ public class Moderator3 : MonoBehaviour {
 		}
 
 	}
+
+    void AppearEffect()
+    {
+        if (effectOn)
+        {
+            int robotPosX = (int)Math.Round(robot.transform.position.x);
+            int robotPosZ = (int)Math.Round(robot.transform.position.z);
+
+            int goalPosX = 11;
+            int goalPosZ = -9;
+
+            float stampPosX = (float)goalPosX + 0.5f;
+            float stampPosZ = (float)goalPosZ + 0.5f;
+
+            if (robotPosX == goalPosX)
+            {
+                if (robotPosZ == goalPosZ)
+                {
+                    GoodStamp.transform.position = new Vector3(stampPosX, 1.5f, stampPosZ);
+                    Quaternion rot = Quaternion.identity;
+                    rot.eulerAngles = new Vector3(0.03f, 197.7f, -0.2f);
+                    GoodStamp.transform.rotation = rot;
+                    GoodStamp.SetActive(true);
+                }
+                else GoodStamp.SetActive(false);
+            }
+            else GoodStamp.SetActive(false);
+        }
+    }
+
+    public void ToggleCheck()
+    {
+        effectOn = toggle.isOn;
+    }
 
 }

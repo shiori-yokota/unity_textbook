@@ -7,6 +7,7 @@ using Microsoft.Scripting.Hosting;
 
 public class RobotController3 : MonoBehaviour {
 	GameObject robot;
+    GameObject moderator;
 
 	// python
 	ScriptEngine scriptEngine;  // スクリプト実行用のScriptEngine
@@ -28,7 +29,8 @@ public class RobotController3 : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		robot = GameObject.Find("RobotPy");
-		filename = Application.dataPath + "/../Python/Chapter3/Astar.py";
+        moderator = GameObject.Find("GameObject");
+        filename = Application.dataPath + "/../Python/Chapter3/Astar.py";
 		setStateAction();
 	}
 	
@@ -48,6 +50,7 @@ public class RobotController3 : MonoBehaviour {
             if (Vector3.Distance(robot.transform.position, endPosition) < 0.1)
             { // 移動完了
                 // UnityEngine.Debug.Log("move finish");
+                moderator.SendMessage("AppearEffect");
                 walk = false;
                 distance = 0.0f;
                 startPosition = endPosition;
@@ -162,7 +165,8 @@ public class RobotController3 : MonoBehaviour {
 	void Teleportation()
 	{
 		robot.transform.position = new Vector3(endPosition.x + 0.5f, robot.transform.position.y, endPosition.z - 0.5f);
-		moveTheRobot();
+        moderator.SendMessage("AppearEffect");
+        moveTheRobot();
 	}
 
 	void setStateAction()

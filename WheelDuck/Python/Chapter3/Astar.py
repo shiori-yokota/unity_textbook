@@ -33,7 +33,7 @@ UnityEngine.Debug.Log('CLOSEDLIST : ' + str(CLOSEDLIST))
 # list_str = flat_list[0::2]
 # CLOSEDLIST = OPENLIST + list_str
 
-CLOSEDLIST = ["S", "S3", "S4"]
+CLOSEDLIST = ["S", "S3", "S4", "S6", "G"]
 
 UnityEngine.Debug.Log('OPENLIST : ' + str(OPENLIST))
 UnityEngine.Debug.Log('CLOSEDLIST : ' + str(CLOSEDLIST))

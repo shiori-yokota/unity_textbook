@@ -53,7 +53,6 @@ public class RobotController2 : MonoBehaviour {
 		}
 		if (Input.GetKeyDown(KeyCode.B))
 		{       //Breadth-First
-			UnityEngine.Debug.Log("START BREADTH FIRST SEARCH");
 			if (!execute)
 			{
 				execute = true;

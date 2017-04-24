@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using System.IO;
+using System;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 
@@ -9,12 +9,18 @@ public class Moderator2 : MonoBehaviour {
     GameObject robot;
     GameObject GoodStamp;
 
+    private Toggle toggle;
+    public bool effectOn;
+    
     private int MazeSize;
 
 	void Start () {
 		robot = GameObject.Find("RobotPy");
         GoodStamp = GameObject.Find("Plane");
         GoodStamp.SetActive(false);
+
+        toggle = GameObject.Find("Toggle").GetComponent<Toggle>();
+        effectOn = toggle.isOn;
 
         MazeSize = 5;
 
@@ -27,8 +33,8 @@ public class Moderator2 : MonoBehaviour {
 
 		setState();
 	}
-	
-	void InitRobotPosition()
+
+    void InitRobotPosition()
 	{
 		int row = 0;
 		int col = -1;
@@ -219,30 +225,36 @@ public class Moderator2 : MonoBehaviour {
 
     void AppearEffect()
     {
-
-        float robotPosX = robot.transform.position.x;
-        float robotPosZ = robot.transform.position.z;
-
-        float goalPosX = 11.0f;
-        float goalPosZ = -9.0f;
-
-        float stampPosX = goalPosX + 0.5f;
-        float stampPosZ = goalPosZ + 0.5f;
-
-        if (robotPosX == goalPosX)
+        if (effectOn)
         {
-            if (robotPosZ == goalPosZ)
+            int robotPosX = (int)Math.Round(robot.transform.position.x);
+            int robotPosZ = (int)Math.Round(robot.transform.position.z);
+
+            int goalPosX = 11;
+            int goalPosZ = -9;
+
+            float stampPosX = (float)goalPosX + 0.5f;
+            float stampPosZ = (float)goalPosZ + 0.5f;
+
+            if (robotPosX == goalPosX)
             {
-                Debug.Log("EEEEEEEEEEEEEEEEE");
-                GoodStamp.transform.position = new Vector3(stampPosX, 1.5f, stampPosZ);
-                Quaternion rot = Quaternion.identity;
-                rot.eulerAngles = new Vector3(0.03f, 197.7f, -0.2f);
-                GoodStamp.transform.rotation = rot;
-                GoodStamp.SetActive(true);
+                if (robotPosZ == goalPosZ)
+                {
+                    GoodStamp.transform.position = new Vector3(stampPosX, 1.5f, stampPosZ);
+                    Quaternion rot = Quaternion.identity;
+                    rot.eulerAngles = new Vector3(0.03f, 197.7f, -0.2f);
+                    GoodStamp.transform.rotation = rot;
+                    GoodStamp.SetActive(true);
+                }
+                else GoodStamp.SetActive(false);
             }
             else GoodStamp.SetActive(false);
         }
-        else GoodStamp.SetActive(false);
+    }
+
+    public void ToggleCheck()
+    {
+        effectOn = toggle.isOn;
     }
 
 }

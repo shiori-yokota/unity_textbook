@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.IO;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
@@ -33,8 +32,9 @@ public class QLearning : MonoBehaviour
 	ScriptEngine scriptEngine;
 	ScriptScope scriptScope;
 	ScriptSource scriptSource;
+    IronPython.Runtime.List q_val = new IronPython.Runtime.List { };
 
-	void Start()
+    void Start()
 	{
 		robot = GameObject.Find("RobotPy");
 		moderator = GameObject.Find("GameObject");
@@ -157,6 +157,10 @@ public class QLearning : MonoBehaviour
 		scriptSource.Execute(scriptScope);
 		// 選択した行動
 		action = scriptScope.GetVariable<int>("ACT");
+        // 学習したQ値
+        q_val = scriptScope.GetVariable<IronPython.Runtime.List>("qvalue");
+        moderator.SendMessage("appear_q_val", q_val);
+
 		// 行動が決まったので移動する
 		Walk(action);
 	}
@@ -232,8 +236,12 @@ public class QLearning : MonoBehaviour
 			startPosition = endPosition;
 			// 選択した行動
 			action = scriptScope.GetVariable<int>("ACT");
-			// 行動が決まったので移動する
-			Walk(action);
+            // 学習したQ値
+            q_val = scriptScope.GetVariable<IronPython.Runtime.List>("qvalue");
+            moderator.SendMessage("appear_q_val", q_val);
+
+            // 行動が決まったので移動する
+            Walk(action);
 		}
 
 	}
@@ -262,8 +270,12 @@ public class QLearning : MonoBehaviour
 			step = 0;
 		}// 選択した行動
 		action = scriptScope.GetVariable<int>("ACT");
-		// 行動が決まったので移動する
-		Walk(action);
+        // 学習したQ値
+        q_val = scriptScope.GetVariable<IronPython.Runtime.List>("qvalue");
+        moderator.SendMessage("appear_q_val", q_val);
+
+        // 行動が決まったので移動する
+        Walk(action);
 	}
 
     void STOP()

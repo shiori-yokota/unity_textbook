@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
+
 
 public class Moderator7 : MonoBehaviour
 {
@@ -340,6 +342,12 @@ public class Moderator7 : MonoBehaviour
             GoodStamp.transform.rotation = rot;
             GoodStamp.SetActive(true);
         }
+    }
+
+    void appear_q_val(IronPython.Runtime.List q_val)
+    {
+        Debug.Log("Q値を表示させる");
+        //List<string> stateVal = q_val.Cast<string>().ToList();
     }
 
     public void ToggleCheck()

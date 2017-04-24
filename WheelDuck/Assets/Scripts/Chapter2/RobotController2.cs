@@ -7,9 +7,10 @@ using Microsoft.Scripting.Hosting;
 
 public class RobotController2 : MonoBehaviour {
 	GameObject robot;
+    GameObject moderator;
 
-	// python
-	ScriptEngine scriptEngine;  // スクリプト実行用のScriptEngine
+    // python
+    ScriptEngine scriptEngine;  // スクリプト実行用のScriptEngine
 	ScriptScope scriptScope;    // スクリプトに値を渡すためのScriptScope
 	ScriptSource scriptSource;  // スクリプトのソースを指定するためのScriptSource
 
@@ -32,7 +33,8 @@ public class RobotController2 : MonoBehaviour {
 	void Start () {
 		execute = false;
 		robot = GameObject.Find("RobotPy");
-		depthFile = Application.dataPath + "/../Python/Chapter2/DepthFirstController.py";
+        moderator = GameObject.Find("GameObject");
+        depthFile = Application.dataPath + "/../Python/Chapter2/DepthFirstController.py";
 		breadthFile = Application.dataPath + "/../Python/Chapter2/BreadthFirstController.py";
 		setStateAction();
 	}
@@ -68,6 +70,7 @@ public class RobotController2 : MonoBehaviour {
             if (Vector3.Distance(robot.transform.position, endPosition) < 0.1)
             { // 移動完了
                 UnityEngine.Debug.Log("move finish");
+                moderator.SendMessage("AppearEffect");
                 walk = false;
                 distance = 0.0f;
                 startPosition = endPosition;
@@ -224,8 +227,9 @@ public class RobotController2 : MonoBehaviour {
 
 	void Teleportation()
 	{
-		robot.transform.position = new Vector3(endPosition.x + 0.5f, robot.transform.position.y, endPosition.z - 0.5f);
-		moveTheRobot();
+		robot.transform.position = new Vector3(endPosition.x, robot.transform.position.y, endPosition.z);
+        moderator.SendMessage("AppearEffect");
+        moveTheRobot();
 	}
 
 	void setStateAction()

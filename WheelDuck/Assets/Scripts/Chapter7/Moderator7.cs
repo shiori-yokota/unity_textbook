@@ -63,6 +63,7 @@ public class Moderator7 : MonoBehaviour {
 		SetLight(MazeSize);
 		// 迷路の設定
 		SetMaze(MazeSize);
+        SetGoalPos(GOAL_COL, GOAL_ROW);
 		// ロボットの初期位置を設定する
 		InitRobotPosition(MazeSize);
 	}
@@ -264,4 +265,42 @@ public class Moderator7 : MonoBehaviour {
 		if (GameMode == "learn") robot.SendMessage("QLearning_start", false);
 		else if (GameMode == "move") robot.SendMessage("Moving_start", "new");
 	}
+
+    void SetGoalPos(int col, int row)
+    {
+        float PosX = col * 2 + 1;
+        float PosZ = -row * 2 - 1;
+
+        Debug.Log("PosX : " + PosX + " PoxZ : " + PosZ);
+
+        var stateDef = new[]
+        {
+            new {
+                Name = "G",
+                Position = new Vector3(PosX, 1.5f, PosZ)
+            }
+        };
+
+        GameObject[] states = new GameObject[stateDef.Length];
+        Quaternion rot = Quaternion.identity;
+        rot.eulerAngles = new Vector3(90, 0, 0);
+        for (int i = 0; i < stateDef.Length; i++)
+        {
+            states[i] = Instantiate(stateDef[i].Position, rot, stateDef[i].Name) as GameObject;
+        }
+
+    }
+
+    public static GameObject Instantiate(Vector3 pos, Quaternion rot, string text)
+    {
+        GameObject obj = Instantiate(Resources.Load("Prefabs/StateText"), pos, rot) as GameObject;
+        obj.name = text;
+        obj.GetComponent<TextMesh>().text = text;
+        obj.GetComponent<TextMesh>().fontSize = 45;
+        obj.GetComponent<TextMesh>().characterSize = 0.15f;
+        obj.GetComponent<TextMesh>().color = new Color(255f / 255f, 111f / 255f, 0f / 255f);
+
+        return obj;
+    }
+
 }

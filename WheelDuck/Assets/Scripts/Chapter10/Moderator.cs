@@ -67,7 +67,7 @@ public class Moderator : MonoBehaviour {
         prefab.tag = "CeilingLight";
         Light lightComp = prefab.GetComponent<Light>();
         lightComp.range = 5.0f;
-        lightComp.intensity = 2.3f;
+        lightComp.intensity = 1.3f;
         Quaternion rot = Quaternion.identity;
         rot.eulerAngles = new Vector3(90, 0, 0);
         int i = 0;

@@ -21,7 +21,7 @@ public class SliderAction : MonoBehaviour {
         for (int i = 0; i < lights.Length; i++)
         {
             Light lightComp = lights[i].GetComponent<Light>();
-            lightComp.intensity = (sliderComp.value * 2) + 0.3f;
+            lightComp.intensity = (sliderComp.value) + 0.3f;
         }
 
     }

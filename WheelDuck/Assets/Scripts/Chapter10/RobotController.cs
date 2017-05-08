@@ -18,10 +18,12 @@ public class RobotController : MonoBehaviour
     float speed = 0.03f;
     private string datetimeStr;
 
+    public Camera arCamera;
+
     void Start()
     {
+        arCamera = GameObject.Find("RobotCamera").GetComponent<Camera>();
         robot = GameObject.Find("RobotPy");
-
     }
 
     private void Update()
@@ -61,7 +63,7 @@ public class RobotController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.C))
             {
                 Debug.Log("*** Capture ***");
-                Application.CaptureScreenshot(Application.dataPath + "/ScreenShot/" + datetimeStr + ".jpg");
+                saveCameraImage();
                 Recognition();
             }
         }
@@ -89,8 +91,27 @@ public class RobotController : MonoBehaviour
 
 
         // ロボットが移動できるようにする
-        Debug.Log(" can move ");
+        Debug.Log("Robot can move ");
         input = true;
+    }
+
+    void saveCameraImage()
+    {
+        Texture2D screenShot = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+        screenShot.Resize(320, 240);
+        RenderTexture rt = new RenderTexture(screenShot.width, screenShot.height, 24);
+        RenderTexture prev = arCamera.targetTexture;
+        arCamera.targetTexture = rt;
+        arCamera.Render();
+        arCamera.targetTexture = prev;
+        RenderTexture.active = rt;
+        screenShot.ReadPixels(new Rect(0, 0, screenShot.width, screenShot.height), 0, 0);
+        screenShot.Apply();
+
+        byte[] bytes = screenShot.EncodeToPNG();
+        Destroy(screenShot);
+
+        File.WriteAllBytes(Application.dataPath + "/ScreenShot/" + datetimeStr + ".png", bytes);
     }
 
 }

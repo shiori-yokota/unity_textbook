@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
@@ -12,7 +11,7 @@ public class Moderator7 : MonoBehaviour
     GameObject robot;
 
     GameObject GoodStamp;
-    private Toggle toggle;
+    private Toggle effect;
     public bool effectOn;
 
 
@@ -40,8 +39,8 @@ public class Moderator7 : MonoBehaviour
         GoodStamp = GameObject.Find("Plane");
         GoodStamp.SetActive(false);
 
-        toggle = GameObject.Find("Toggle").GetComponent<Toggle>();
-        effectOn = toggle.isOn;
+        effect = GameObject.Find("Effect").GetComponent<Toggle>();
+        effectOn = effect.isOn;
 
 
         string script;
@@ -85,11 +84,21 @@ public class Moderator7 : MonoBehaviour
 
     void Update()
     {
+        effectOn = effect.isOn;
+
         if (Input.GetKeyDown(KeyCode.L))
         {
             GameMode = "learn";
             robot.SendMessage("GameMode", GameMode);
             UnityEngine.Debug.Log("Q Learning Start");
+            string FILE_NAME = Application.dataPath + "/../Python/Chapter7/qvalues.txt";
+            if (File.Exists(FILE_NAME))
+            {
+                File.Delete(FILE_NAME);
+                File.Create(FILE_NAME).Close();
+            }
+            else File.Create(FILE_NAME).Close();
+
             /* 環境設定が終わったので，Q-Learningを開始する */
             robot.SendMessage("QLearning_start", false);
         }
@@ -287,6 +296,7 @@ public class Moderator7 : MonoBehaviour
 
     void q_start()
     {
+        GoodStamp.SetActive(false);
         if (GameMode == "learn") robot.SendMessage("QLearning_start", false);
         else if (GameMode == "move") robot.SendMessage("Moving_start", "new");
     }
@@ -309,12 +319,12 @@ public class Moderator7 : MonoBehaviour
         rot.eulerAngles = new Vector3(90, 0, 0);
         for (int i = 0; i < stateDef.Length; i++)
         {
-            states[i] = Instantiate(stateDef[i].Position, rot, stateDef[i].Name) as GameObject;
+            states[i] = GoalInstantiate(stateDef[i].Position, rot, stateDef[i].Name) as GameObject;
         }
 
     }
 
-    public static GameObject Instantiate(Vector3 pos, Quaternion rot, string text)
+    public static GameObject GoalInstantiate(Vector3 pos, Quaternion rot, string text)
     {
         GameObject obj = Instantiate(Resources.Load("Prefabs/StateText"), pos, rot) as GameObject;
         obj.name = text;
@@ -334,8 +344,7 @@ public class Moderator7 : MonoBehaviour
         float stampPosX = goalPosX + 0.5f;
         float stampPosZ = goalPosZ + 0.5f;
 
-        if (effectOn)
-        {
+        if (effectOn) {
             GoodStamp.transform.position = new Vector3(stampPosX, 1.5f, stampPosZ);
             Quaternion rot = Quaternion.identity;
             rot.eulerAngles = new Vector3(0.03f, 197.7f, -0.2f);
@@ -344,14 +353,538 @@ public class Moderator7 : MonoBehaviour
         }
     }
 
-    void appear_q_val(IronPython.Runtime.List q_val)
+    void ViewProb(List<double> val)
     {
-        Debug.Log("Q値を表示させる");
-        //List<string> stateVal = q_val.Cast<string>().ToList();
+        var stateDef = new[]
+        {
+            new {   // 1
+                Name = val[0].ToString("F2"),
+                Position = new Vector3(1.0f, 1.5f, -0.5f),
+            },
+            new {
+                Name = val[1].ToString("F2"),
+                Position = new Vector3(1.5f, 1.5f, -1.0f),
+            },
+            new
+            {
+                Name = val[2].ToString("F2"),
+                Position = new Vector3(1.0f, 1.5f, -1.5f),
+            },
+            new
+            {
+                Name = val[3].ToString("F2"),
+                Position = new Vector3(0.5f, 1.5f, -1.0f),
+            },
+            new
+            {   // 2
+                Name = val[4].ToString("F2"),
+                Position = new Vector3(3.0f, 1.5f, -0.5f),
+            },
+            new
+            {
+                Name = val[5].ToString("F2"),
+                Position = new Vector3(3.5f, 1.5f, -1.0f),
+            },
+            new
+            {
+                Name = val[6].ToString("F2"),
+                Position = new Vector3(3.0f, 1.5f, -1.5f),
+            },
+            new
+            {
+                Name = val[7].ToString("F2"),
+                Position = new Vector3(2.5f, 1.5f, -1.0f),
+            },
+            new // 3
+            {
+                Name = val[8].ToString("F2"),
+                Position = new Vector3(5.0f, 1.5f, -0.5f),
+            },
+            new
+            {
+                Name = val[9].ToString("F2"),
+                Position = new Vector3(5.5f, 1.5f, -1.0f),
+            },
+            new
+            {
+                Name = val[10].ToString("F2"),
+                Position = new Vector3(5.0f, 1.5f, -1.5f),
+            },
+            new
+            {
+                Name = val[11].ToString("F2"),
+                Position = new Vector3(4.5f, 1.5f, -1.0f),
+            },
+            new // 4
+            {
+                Name = val[12].ToString("F2"),
+                Position = new Vector3(7.0f, 1.5f, -0.5f),
+            },
+            new
+            {
+                Name = val[13].ToString("F2"),
+                Position = new Vector3(7.5f, 1.5f, -1.0f),
+            },
+            new
+            {
+                Name = val[14].ToString("F2"),
+                Position = new Vector3(7.0f, 1.5f, -1.5f),
+            },
+            new
+            {
+                Name = val[15].ToString("F2"),
+                Position = new Vector3(6.5f, 1.5f, -1.0f),
+            },
+            new // 5
+            {
+                Name = val[16].ToString("F2"),
+                Position = new Vector3(9.0f, 1.5f, -0.5f),
+            },
+            new
+            {
+                Name = val[17].ToString("F2"),
+                Position = new Vector3(9.5f, 1.5f, -1.0f),
+            },
+            new
+            {
+                Name = val[18].ToString("F2"),
+                Position = new Vector3(9.0f, 1.5f, -1.5f),
+            },
+            new
+            {
+                Name = val[19].ToString("F2"),
+                Position = new Vector3(8.5f, 1.5f, -1.0f),
+            },
+
+            new   // 6
+            {
+                Name = val[20].ToString("F2"),
+                Position = new Vector3(1.0f, 1.5f, -2.5f),
+            },
+            new
+            {
+                Name = val[21].ToString("F2"),
+                Position = new Vector3(1.5f, 1.5f, -3.0f),
+            },
+            new
+            {
+                Name = val[22].ToString("F2"),
+                Position = new Vector3(1.0f, 1.5f, -3.5f),
+            },
+            new
+            {
+                Name = val[23].ToString("F2"),
+                Position = new Vector3(0.5f, 1.5f, -3.0f),
+            },
+            new
+            {   // 7
+                Name = val[24].ToString("F2"),
+                Position = new Vector3(3.0f, 1.5f, -2.5f),
+            },
+            new
+            {
+                Name = val[25].ToString("F2"),
+                Position = new Vector3(3.5f, 1.5f, -3.0f),
+            },
+            new
+            {
+                Name = val[26].ToString("F2"),
+                Position = new Vector3(3.0f, 1.5f, -3.5f),
+            },
+            new
+            {
+                Name = val[27].ToString("F2"),
+                Position = new Vector3(2.5f, 1.5f, -3.0f),
+            },
+            new // 8
+            {
+                Name = val[28].ToString("F2"),
+                Position = new Vector3(5.0f, 1.5f, -2.5f),
+            },
+            new
+            {
+                Name = val[29].ToString("F2"),
+                Position = new Vector3(5.5f, 1.5f, -3.0f),
+            },
+            new
+            {
+                Name = val[30].ToString("F2"),
+                Position = new Vector3(5.0f, 1.5f, -3.5f),
+            },
+            new
+            {
+                Name = val[31].ToString("F2"),
+                Position = new Vector3(4.5f, 1.5f, -3.0f),
+            },
+            new // 9
+            {
+                Name = val[32].ToString("F2"),
+                Position = new Vector3(7.0f, 1.5f, -2.5f),
+            },
+            new
+            {
+                Name = val[33].ToString("F2"),
+                Position = new Vector3(7.5f, 1.5f, -3.0f),
+            },
+            new
+            {
+                Name = val[34].ToString("F2"),
+                Position = new Vector3(7.0f, 1.5f, -3.5f),
+            },
+            new
+            {
+                Name = val[35].ToString("F2"),
+                Position = new Vector3(6.5f, 1.5f, -3.0f),
+            },
+            new // 10
+            {
+                Name = val[36].ToString("F2"),
+                Position = new Vector3(9.0f, 1.5f, -2.5f),
+            },
+            new
+            {
+                Name = val[37].ToString("F2"),
+                Position = new Vector3(9.5f, 1.5f, -3.0f),
+            },
+            new
+            {
+                Name = val[38].ToString("F2"),
+                Position = new Vector3(9.0f, 1.5f, -3.5f),
+            },
+            new
+            {
+                Name = val[39].ToString("F2"),
+                Position = new Vector3(8.5f, 1.5f, -3.0f),
+            },
+
+            new   // 11
+            {
+                Name = val[40].ToString("F2"),
+                Position = new Vector3(1.0f, 1.5f, -4.5f),
+            },
+            new
+            {
+                Name = val[41].ToString("F2"),
+                Position = new Vector3(1.5f, 1.5f, -5.0f),
+            },
+            new
+            {
+                Name = val[42].ToString("F2"),
+                Position = new Vector3(1.0f, 1.5f, -5.5f),
+            },
+            new
+            {
+                Name = val[43].ToString("F2"),
+                Position = new Vector3(0.5f, 1.5f, -5.0f),
+            },
+            new
+            {   // 12
+                Name = val[44].ToString("F2"),
+                Position = new Vector3(3.0f, 1.5f, -4.5f),
+            },
+            new
+            {
+                Name = val[45].ToString("F2"),
+                Position = new Vector3(3.5f, 1.5f, -5.0f),
+            },
+            new
+            {
+                Name = val[46].ToString("F2"),
+                Position = new Vector3(3.0f, 1.5f, -5.5f),
+            },
+            new
+            {
+                Name = val[47].ToString("F2"),
+                Position = new Vector3(2.5f, 1.5f, -5.0f),
+            },
+            new // 13
+            {
+                Name = val[48].ToString("F2"),
+                Position = new Vector3(5.0f, 1.5f, -4.5f),
+            },
+            new
+            {
+                Name = val[49].ToString("F2"),
+                Position = new Vector3(5.5f, 1.5f, -5.0f),
+            },
+            new
+            {
+                Name = val[50].ToString("F2"),
+                Position = new Vector3(5.0f, 1.5f, -5.5f),
+            },
+            new
+            {
+                Name = val[51].ToString("F2"),
+                Position = new Vector3(4.5f, 1.5f, -5.0f),
+            },
+            new // 14
+            {
+                Name = val[52].ToString("F2"),
+                Position = new Vector3(7.0f, 1.5f, -4.5f),
+            },
+            new
+            {
+                Name = val[53].ToString("F2"),
+                Position = new Vector3(7.5f, 1.5f, -5.0f),
+            },
+            new
+            {
+                Name = val[54].ToString("F2"),
+                Position = new Vector3(7.0f, 1.5f, -5.5f),
+            },
+            new
+            {
+                Name = val[55].ToString("F2"),
+                Position = new Vector3(6.5f, 1.5f, -5.0f),
+            },
+            new // 15
+            {
+                Name = val[56].ToString("F2"),
+                Position = new Vector3(9.0f, 1.5f, -4.5f),
+            },
+            new
+            {
+                Name = val[57].ToString("F2"),
+                Position = new Vector3(9.5f, 1.5f, -5.0f),
+            },
+            new
+            {
+                Name = val[58].ToString("F2"),
+                Position = new Vector3(9.0f, 1.5f, -5.5f),
+            },
+            new
+            {
+                Name = val[59].ToString("F2"),
+                Position = new Vector3(8.5f, 1.5f, -5.0f),
+            },
+
+            new   // 16
+            {
+                Name = val[60].ToString("F2"),
+                Position = new Vector3(1.0f, 1.5f, -6.5f),
+            },
+            new
+            {
+                Name = val[61].ToString("F2"),
+                Position = new Vector3(1.5f, 1.5f, -7.0f),
+            },
+            new
+            {
+                Name = val[62].ToString("F2"),
+                Position = new Vector3(1.0f, 1.5f, -7.5f),
+            },
+            new
+            {
+                Name = val[63].ToString("F2"),
+                Position = new Vector3(0.5f, 1.5f, -7.0f),
+            },
+            new
+            {   // 17
+                Name = val[64].ToString("F2"),
+                Position = new Vector3(3.0f, 1.5f, -6.5f),
+            },
+            new
+            {
+                Name = val[65].ToString("F2"),
+                Position = new Vector3(3.5f, 1.5f, -7.0f),
+            },
+            new
+            {
+                Name = val[66].ToString("F2"),
+                Position = new Vector3(3.0f, 1.5f, -7.5f),
+            },
+            new
+            {
+                Name = val[67].ToString("F2"),
+                Position = new Vector3(2.5f, 1.5f, -7.0f),
+            },
+            new // 18
+            {
+                Name = val[68].ToString("F2"),
+                Position = new Vector3(5.0f, 1.5f, -6.5f),
+            },
+            new
+            {
+                Name = val[69].ToString("F2"),
+                Position = new Vector3(5.5f, 1.5f, -7.0f),
+            },
+            new
+            {
+                Name = val[70].ToString("F2"),
+                Position = new Vector3(5.0f, 1.5f, -7.5f),
+            },
+            new
+            {
+                Name = val[71].ToString("F2"),
+                Position = new Vector3(4.5f, 1.5f, -7.0f),
+            },
+            new // 19
+            {
+                Name = val[72].ToString("F2"),
+                Position = new Vector3(7.0f, 1.5f, -6.5f),
+            },
+            new
+            {
+                Name = val[73].ToString("F2"),
+                Position = new Vector3(7.5f, 1.5f, -7.0f),
+            },
+            new
+            {
+                Name = val[74].ToString("F2"),
+                Position = new Vector3(7.0f, 1.5f, -7.5f),
+            },
+            new
+            {
+                Name = val[75].ToString("F2"),
+                Position = new Vector3(6.5f, 1.5f, -7.0f),
+            },
+            new // 20
+            {
+                Name = val[76].ToString("F2"),
+                Position = new Vector3(9.0f, 1.5f, -6.5f),
+            },
+            new
+            {
+                Name = val[77].ToString("F2"),
+                Position = new Vector3(9.5f, 1.5f, -7.0f),
+            },
+            new
+            {
+                Name = val[78].ToString("F2"),
+                Position = new Vector3(9.0f, 1.5f, -7.5f),
+            },
+            new
+            {
+                Name = val[79].ToString("F2"),
+                Position = new Vector3(8.5f, 1.5f, -7.0f),
+            },
+
+            new   // 21
+            {
+                Name = val[80].ToString("F2"),
+                Position = new Vector3(1.0f, 1.5f, -8.5f),
+            },
+            new
+            {
+                Name = val[81].ToString("F2"),
+                Position = new Vector3(1.5f, 1.5f, -9.0f),
+            },
+            new
+            {
+                Name = val[82].ToString("F2"),
+                Position = new Vector3(1.0f, 1.5f, -9.5f),
+            },
+            new
+            {
+                Name = val[83].ToString("F2"),
+                Position = new Vector3(0.5f, 1.5f, -9.0f),
+            },
+            new
+            {   // 22
+                Name = val[84].ToString("F2"),
+                Position = new Vector3(3.0f, 1.5f, -8.5f),
+            },
+            new
+            {
+                Name = val[85].ToString("F2"),
+                Position = new Vector3(3.5f, 1.5f, -9.0f),
+            },
+            new
+            {
+                Name = val[86].ToString("F2"),
+                Position = new Vector3(3.0f, 1.5f, -9.5f),
+            },
+            new
+            {
+                Name = val[87].ToString("F2"),
+                Position = new Vector3(2.5f, 1.5f, -9.0f),
+            },
+            new // 23
+            {
+                Name = val[88].ToString("F2"),
+                Position = new Vector3(5.0f, 1.5f, -8.5f),
+            },
+            new
+            {
+                Name = val[89].ToString("F2"),
+                Position = new Vector3(5.5f, 1.5f, -9.0f),
+            },
+            new
+            {
+                Name = val[90].ToString("F2"),
+                Position = new Vector3(5.0f, 1.5f, -9.5f),
+            },
+            new
+            {
+                Name = val[91].ToString("F2"),
+                Position = new Vector3(4.5f, 1.5f, -9.0f),
+            },
+            new // 24
+            {
+                Name = val[92].ToString("F2"),
+                Position = new Vector3(7.0f, 1.5f, -8.5f),
+            },
+            new
+            {
+                Name = val[93].ToString("F2"),
+                Position = new Vector3(7.5f, 1.5f, -9.0f),
+            },
+            new
+            {
+                Name = val[94].ToString("F2"),
+                Position = new Vector3(7.0f, 1.5f, -9.5f),
+            },
+            new
+            {
+                Name = val[95].ToString("F2"),
+                Position = new Vector3(6.5f, 1.5f, -9.0f),
+            },
+            new // 25
+            {
+                Name = val[96].ToString("F2"),
+                Position = new Vector3(9.0f, 1.5f, -8.5f),
+            },
+            new
+            {
+                Name = val[97].ToString("F2"),
+                Position = new Vector3(9.5f, 1.5f, -9.0f),
+            },
+            new
+            {
+                Name = val[98].ToString("F2"),
+                Position = new Vector3(9.0f, 1.5f, -9.5f),
+            },
+            new
+            {
+                Name = val[99].ToString("F2"),
+                Position = new Vector3(8.5f, 1.5f, -9.0f),
+            },
+
+        };
+
+        GameObject[] states = new GameObject[stateDef.Length];
+        Quaternion rot = Quaternion.identity;
+        rot.eulerAngles = new Vector3(90, 0, 0);
+        for (int i = 0; i < stateDef.Length; i++)
+        {
+            states[i] = Instantiate(stateDef[i].Position, rot, stateDef[i].Name) as GameObject;
+            Destroy(states[i], 0.7f);
+        }
+    }
+
+    public static GameObject Instantiate(Vector3 pos, Quaternion rot, string text)
+    {
+        GameObject obj = Instantiate(Resources.Load("Prefabs/StateText"), pos, rot) as GameObject;
+        obj.name = text;
+        obj.GetComponent<TextMesh>().text = text;
+        obj.GetComponent<TextMesh>().fontSize = 20;
+        obj.GetComponent<TextMesh>().characterSize = 0.15f;
+
+        return obj;
     }
 
     public void ToggleCheck()
     {
-        effectOn = toggle.isOn;
+        effectOn = effect.isOn;
     }
 }

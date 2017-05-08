@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.IO;
+using System.Collections.Generic;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 
@@ -8,7 +10,10 @@ public class QLearning : MonoBehaviour
 	GameObject robot;
 	GameObject moderator;
 
-	int episode = 0;
+    private Toggle Qvalues;
+    public bool QvalueOn;
+
+    int episode = 0;
 	int step = 0;
 	int action;
 	double EPSILON;
@@ -32,7 +37,8 @@ public class QLearning : MonoBehaviour
 	ScriptEngine scriptEngine;
 	ScriptScope scriptScope;
 	ScriptSource scriptSource;
-    IronPython.Runtime.List q_val = new IronPython.Runtime.List { };
+
+    string FILE_NAME;
 
     void Start()
 	{
@@ -40,10 +46,15 @@ public class QLearning : MonoBehaviour
 		moderator = GameObject.Find("GameObject");
 		walk = false;
 		Colli = false;
+        
+        Qvalues = GameObject.Find("Qvalue").GetComponent<Toggle>();
+        QvalueOn = Qvalues.isOn;
 
-		string script;
+        FILE_NAME = Application.dataPath + "/../Python/Chapter7/qvalues.txt";
+
+        string script;
 		string filename = Application.dataPath + "/../Python/Chapter7/Moderator.py";
-		using (StreamReader sr = new StreamReader(filename, System.Text.Encoding.UTF8))
+        using (StreamReader sr = new StreamReader(filename, System.Text.Encoding.UTF8))
 			script = sr.ReadToEnd();
 
 		// Pythonスクリプト実行エンジン
@@ -68,6 +79,8 @@ public class QLearning : MonoBehaviour
 
 	void Update()
 	{
+        QvalueOn = Qvalues.isOn;
+
         if (walk)
         {
             distance += Time.deltaTime * 3;
@@ -158,11 +171,10 @@ public class QLearning : MonoBehaviour
 		// 選択した行動
 		action = scriptScope.GetVariable<int>("ACT");
         // 学習したQ値
-        q_val = scriptScope.GetVariable<IronPython.Runtime.List>("qvalue");
-        moderator.SendMessage("appear_q_val", q_val);
+        if (QvalueOn) viewProb();
 
-		// 行動が決まったので移動する
-		Walk(action);
+        // 行動が決まったので移動する
+        Walk(action);
 	}
 
 	int[] position2rowcol(Vector3 pos)
@@ -237,8 +249,7 @@ public class QLearning : MonoBehaviour
 			// 選択した行動
 			action = scriptScope.GetVariable<int>("ACT");
             // 学習したQ値
-            q_val = scriptScope.GetVariable<IronPython.Runtime.List>("qvalue");
-            moderator.SendMessage("appear_q_val", q_val);
+            if (QvalueOn) viewProb();
 
             // 行動が決まったので移動する
             Walk(action);
@@ -271,8 +282,7 @@ public class QLearning : MonoBehaviour
 		}// 選択した行動
 		action = scriptScope.GetVariable<int>("ACT");
         // 学習したQ値
-        q_val = scriptScope.GetVariable<IronPython.Runtime.List>("qvalue");
-        moderator.SendMessage("appear_q_val", q_val);
+        if (QvalueOn) viewProb();
 
         // 行動が決まったので移動する
         Walk(action);
@@ -280,7 +290,23 @@ public class QLearning : MonoBehaviour
 
     void STOP()
     {
-        Debug.Log("*******************");
+        Debug.Log("**** S T O P ****");
+    }
+
+    void viewProb()
+    {
+
+        string[] text = System.IO.File.ReadAllLines(FILE_NAME);
+        //for (int i = 0; i < text.Length; i++) Debug.Log("LOG: " + text[i]);
+
+        List<double> stateVal = new List<double> { };
+        for (int i = 0; i < text.Length; i++)
+        {
+            string[] substrings = text[i].Split(':');
+            stateVal.Add(double.Parse(substrings[1]));
+        }
+
+        moderator.SendMessage("ViewProb", stateVal);
     }
 
 }

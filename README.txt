@@ -34,7 +34,14 @@ WheelDuck/
    |          |
    |          + Plugins		IronPythonを組み込む
    |          + Resources	アセットのインスタンスを作成してゲームプレイで使用
+   |                 |
+   |                 + Prefabs/		環境のprefab
+   |                 + Textures/	ゴールに到達した際のエフェクトのテクスチャ
+   |                 + Treasures/	お宝の保存先
+   |                 + GoodStamp	ゴールに到達した際のエフェクト
+   |
    |          + Scenes		シーンの保存先
+   |          + ScreenShot	画像の保存先
    |          + Scripts/	 	各章に必要なスクリプト(cs)の保存先
    |                 |
    |                 |---- Chapter~~/

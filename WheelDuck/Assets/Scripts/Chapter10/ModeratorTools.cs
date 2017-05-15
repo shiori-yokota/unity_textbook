@@ -14,10 +14,10 @@ public class TreasurePositionsInfo
 
 public class ModeratorTools {
 
-    private static List<GameObject> treasureCandidates; // 全てのお宝候補
-    private static List<GameObject> treasures;          // 実際に迷路上に置くお宝たち
+    private static List<GameObject> treasureCandidates; // 全てのお宝候補 : 12
+    private static List<GameObject> treasures;          // 実際に迷路上に置くお宝たち : 7
 
-    private static List<GameObject> treasurePositions;  // お宝を迷路に置く位置
+    private static List<GameObject> treasurePositions;  // お宝を迷路に置く位置 : 7
 
     public static List<GameObject> InitializeAndGetTreasures()
     {
@@ -43,13 +43,35 @@ public class ModeratorTools {
         }
     }
 
+    public static void DeactivateTreasuresCandidates(List<GameObject> objects)
+    {
+        foreach (GameObject treasure in ModeratorTools.treasureCandidates)
+        {
+            if (!objects.Contains(treasure)) treasure.SetActive(false);
+        }
+    }
+
     public static Dictionary<TreasurePositionsInfo, GameObject> CreateTreasuresPositionMap()
     {
         // お宝を置く位置を見えないようにする
         ModeratorTools.DeactivateTreasuresPositions();
 
         // 迷路上に置くお宝を決める
-        ModeratorTools.treasures = ModeratorTools.treasureCandidates.OrderBy(i => Guid.NewGuid()).ToList();
+        // ModeratorTools.treasures = ModeratorTools.treasureCandidates.OrderBy(i => Guid.NewGuid()).ToList();
+        ModeratorTools.treasures = new List<GameObject>();
+
+        List <int> randomList = new List<int>();
+        while (true)
+        {
+            int value = UnityEngine.Random.Range(0, ModeratorTools.treasureCandidates.Count);
+            if (randomList.Contains(value)) continue;
+            randomList.Add(value);
+            treasures.Add(ModeratorTools.treasureCandidates[value]);
+            if (randomList.Count == ModeratorTools.treasurePositions.Count) break;
+        }
+
+        // 配置しないお宝を見えないようにする
+        ModeratorTools.DeactivateTreasuresCandidates(treasures);
 
         Dictionary<TreasurePositionsInfo, GameObject> treasureCandidatesMap = new Dictionary<TreasurePositionsInfo, GameObject>();
         for (int i = 0; i < ModeratorTools.treasures.Count; i++)

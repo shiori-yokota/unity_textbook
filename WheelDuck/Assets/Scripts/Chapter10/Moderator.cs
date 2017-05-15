@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
+using System;
 using System.IO;
+using System.Threading;
+using System.Collections.Generic;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 
@@ -14,9 +17,9 @@ public class Moderator : MonoBehaviour {
 	ScriptScope scriptScope;	// スクリプトに値を渡すためのScriptScope
 	ScriptSource scriptSource;	// スクリプトのソースを指定するためのScriptSource
 
+    private List<GameObject> setTreasures;
 
-
-	void Start()
+    void Start()
 	{
 		robot = GameObject.Find("RobotPy");
 
@@ -49,7 +52,39 @@ public class Moderator : MonoBehaviour {
 		SetMaze(MazeSize);
 		// ロボットの初期位置を設定する
 		InitRobotPosition(MazeSize);
+
+        try
+        {
+            this.setTreasures = ModeratorTools.InitializeAndGetTreasures();
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(exception);
+            this.ApplicationQuitAfter1sec();
+        }
+
+        this.PreProcess();
 	}
+
+    private void PreProcess()
+    {
+        Dictionary<TreasurePositionsInfo, GameObject> treasuresPositionMap = null;
+        treasuresPositionMap = ModeratorTools.CreateTreasuresPositionMap();
+
+        foreach (KeyValuePair<TreasurePositionsInfo, GameObject> pair in treasuresPositionMap)
+        {
+            pair.Value.transform.position = pair.Key.position;
+            pair.Value.transform.eulerAngles = pair.Key.eulerAngles;
+        }
+
+        //for (int i = 0; i < this.setTreasures.Count; i++)
+        //{
+        //    this.setTreasures[i].GetComponent<Rigidbody>().constraints
+        //        = RigidbodyConstraints.FreezeRotation |
+        //          RigidbodyConstraints.FreezePositionX |
+        //          RigidbodyConstraints.FreezePositionZ;
+        //}
+    }
 
 	void SetCamera(int size)
 	{
@@ -165,8 +200,8 @@ public class Moderator : MonoBehaviour {
 
 	void InitRobotPosition(int size)
 	{
-		int row = Random.Range (0, size);
-		int col = Random.Range (0, size);
+		int row = UnityEngine.Random.Range (0, size);
+		int col = UnityEngine.Random.Range (0, size);
 		UnityEngine.Debug.Log ("Init robot Pos : (" + row + ", " + col + ")");
 		robot.transform.position = new Vector3 ((col * 2) + 1, 1, -((row * 2) + 1));
 	}
@@ -180,6 +215,12 @@ public class Moderator : MonoBehaviour {
         obj.GetComponent<TextMesh>().characterSize = 0.15f;
 
         return obj;
+    }
+
+    private void ApplicationQuitAfter1sec()
+    {
+        Thread.Sleep(1000);
+        Application.Quit();
     }
 
 }

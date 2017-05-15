@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -33,12 +34,18 @@ public class ParticleFilter : MonoBehaviour
     private Vector3 startPosition;
     private Vector3 endPosition;
 
+    private Toggle ParticleNum;
+    public bool ParticleNumOn;
+
     void Start()
     {
         robot = GameObject.Find("RobotPy");
 
         walk = false;
         input = false;
+
+        ParticleNum = GameObject.Find("ParticleNum").GetComponent<Toggle>();
+        ParticleNumOn = ParticleNum.isOn;
 
         string script;
         string moderaterfile = Application.dataPath + "/../Python/Chapter9/Moderator.py";
@@ -66,6 +73,8 @@ public class ParticleFilter : MonoBehaviour
 
     private void Update()
     {
+        ParticleNumOn = ParticleNum.isOn;
+
         if (execute)
         {
             if (Input.GetKeyDown(KeyCode.S))
@@ -152,7 +161,7 @@ public class ParticleFilter : MonoBehaviour
 
         PRTCL = scriptScope.GetVariable<IronPython.Runtime.List>("PRTCL");
 
-        viewProb(PRTCL);
+        if (ParticleNumOn) viewProb(PRTCL);
         input = true;
     }
 
@@ -190,7 +199,7 @@ public class ParticleFilter : MonoBehaviour
 
         PRTCL = scriptScope.GetVariable<IronPython.Runtime.List>("PRTCL");
 
-        viewProb(PRTCL);
+        if (ParticleNumOn) viewProb(PRTCL);
         input = true;
     }
 

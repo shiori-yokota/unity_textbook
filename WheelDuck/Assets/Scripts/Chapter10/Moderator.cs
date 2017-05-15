@@ -77,13 +77,13 @@ public class Moderator : MonoBehaviour {
             pair.Value.transform.eulerAngles = pair.Key.eulerAngles;
         }
 
-        //for (int i = 0; i < this.setTreasures.Count; i++)
-        //{
+        for (int i = 0; i < this.setTreasures.Count; i++)
+        {
         //    this.setTreasures[i].GetComponent<Rigidbody>().constraints
         //        = RigidbodyConstraints.FreezeRotation |
         //          RigidbodyConstraints.FreezePositionX |
         //          RigidbodyConstraints.FreezePositionZ;
-        //}
+        }
     }
 
 	void SetCamera(int size)

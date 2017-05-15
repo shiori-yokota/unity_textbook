@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -34,12 +35,18 @@ public class BayesianFilter : MonoBehaviour
     private Vector3 startPosition;
     private Vector3 endPosition;
 
+    private Toggle ExistenceProbability;
+    public bool ExistenceProbabilityOn;
+
     void Start()
     {
         robot = GameObject.Find("RobotPy");
 
         walk = false;
         input = false;
+
+        ExistenceProbability = GameObject.Find("ExistenceProbability").GetComponent<Toggle>();
+        ExistenceProbabilityOn = ExistenceProbability.isOn;
 
         string script;
         string moderaterfile = Application.dataPath + "/../Python/Chapter8/Moderator.py";
@@ -66,6 +73,8 @@ public class BayesianFilter : MonoBehaviour
 
     private void Update()
     {
+        ExistenceProbabilityOn = ExistenceProbability.isOn;
+
         if (execute)
         {
             if (Input.GetKeyDown(KeyCode.S))
@@ -153,7 +162,7 @@ public class BayesianFilter : MonoBehaviour
         preSONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("preSONZAI");
         SONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("SONZAI");
 
-        viewProb(preSONZAI);
+        if (ExistenceProbabilityOn) viewProb(preSONZAI);
         input = true;
     }
 
@@ -193,7 +202,7 @@ public class BayesianFilter : MonoBehaviour
         preSONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("preSONZAI");
         SONZAI = scriptScope.GetVariable<IronPython.Runtime.List>("SONZAI");
 
-        viewProb(SONZAI);
+        if (ExistenceProbabilityOn) viewProb(SONZAI);
         input = true;
     }
 

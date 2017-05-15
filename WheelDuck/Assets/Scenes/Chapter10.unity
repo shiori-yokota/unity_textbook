@@ -1071,6 +1071,34 @@ Prefab:
       propertyPath: m_TagString
       value: Treasures
       objectReference: {fileID: 0}
+    - target: {fileID: 4164385241311302, guid: fa578b7378669e14ba72b15eb5994606, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4164385241311302, guid: fa578b7378669e14ba72b15eb5994606, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4164385241311302, guid: fa578b7378669e14ba72b15eb5994606, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4164385241311302, guid: fa578b7378669e14ba72b15eb5994606, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4164385241311302, guid: fa578b7378669e14ba72b15eb5994606, type: 2}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 4164385241311302, guid: fa578b7378669e14ba72b15eb5994606, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4164385241311302, guid: fa578b7378669e14ba72b15eb5994606, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 1.132
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: fa578b7378669e14ba72b15eb5994606, type: 2}
   m_IsPrefabParent: 0

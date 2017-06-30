@@ -14,3 +14,14 @@
 　
 ・BreadthFirstController.py (幅優先探索用)
 ・DepthFirstController.py (幅優先探索用)
+
+
+【実行手順】
+
+・シーンを再生[->]
+　　│
+　　├ キーボードの[D]ボタンを押す
+　　│ 深さ優先探索
+　　│
+　　└ キーボードの[B]ボタンを押す
+　　　 幅優先探索

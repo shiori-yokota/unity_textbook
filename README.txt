@@ -53,4 +53,7 @@ WheelDuck/
    |---- Python/
                |
                + Chapter~~/	各章のpythonコード保存先
+                     |
+                     + README.txt	各章のpythonコードの説明と実行手順が記述されている
+                     
                + Lib/		Pythonの標準モジュールを使用
